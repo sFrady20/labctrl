@@ -1,0 +1,13 @@
+node_modules
+*.log
+.next
+app
+dist
+
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*

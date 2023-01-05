@@ -1,0 +1,12 @@
+appId: com.fradiation.labctrl
+productName: labctrl
+copyright: Copyright © 2022 Steven Frady
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null
