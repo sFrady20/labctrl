@@ -18,6 +18,19 @@ export const turnLightsOff = async () => {
   lifx.lights(undefined).forEach((light) => light.off());
 };
 
+export const setLightingTheme = async (theme: {
+  name: string;
+  instructions: string[][];
+}) => {
+  const { instructions } = theme;
+  for (let i = 0; i < instructions.length; ++i) {
+    const [lifxId, ...args] = instructions[i];
+    const light = lifx.light(lifxId);
+    console.log(`Commanding light ${lifxId}`, args);
+    light.color(...args.map((x) => parseInt(x)));
+  }
+};
+
 export const randomizeLighting = async () => {
   lifx
     .lights(undefined)

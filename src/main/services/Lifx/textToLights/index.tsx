@@ -4,6 +4,7 @@ import coreContext from "./context-1.txt?raw";
 import roomContext from "./context-2.txt?raw";
 import request from "./request.txt?raw";
 import lights from "../lights";
+import { setLightingTheme } from "..";
 
 export async function textToLights(topic) {
   try {
@@ -25,15 +26,21 @@ export async function textToLights(topic) {
       ],
     });
 
-    const instructions = response.split("\n").map((x) => x.split(","));
-    for (let i = 0; i < instructions.length; ++i) {
-      const [lifxId, ...args] = instructions[i];
-      const light = lifx.light(lifxId);
-      console.log(`Commanding light ${lifxId}`, args);
-      light.color(...args.map((x) => parseInt(x)));
-    }
+    const lines = response.split("\n");
+    const name = lines[0];
+    const instructions = lines.slice(1).map((x) => x.split(","));
+    await setLightingTheme({ name, instructions });
+
+    return {
+      status: "success" as const,
+      name,
+      instructions,
+    };
   } catch (err: any) {
     console.error(err);
-    return err.message;
+    return {
+      status: "error" as const,
+      message: err.message,
+    };
   }
 }

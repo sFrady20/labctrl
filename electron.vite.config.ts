@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import { defineConfig, externalizeDepsPlugin } from "electron-vite";
-import react from "@vitejs/plugin-react";
+import React from "@vitejs/plugin-react";
 import UnoCSS from "unocss/vite";
 
 const alias = {
@@ -26,6 +26,6 @@ export default defineConfig({
     resolve: {
       alias,
     },
-    plugins: [react(), UnoCSS()],
+    plugins: [React(), UnoCSS()],
   },
 });
