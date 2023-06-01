@@ -1,9 +1,9 @@
 node_modules
-*.log
-.next
-app
 dist
+out
+*.log*
 
+# yarn
 .yarn/*
 !.yarn/patches
 !.yarn/releases
@@ -11,3 +11,6 @@ dist
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+# env
+.env

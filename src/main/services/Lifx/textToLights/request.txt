@@ -1,0 +1,7 @@
+Generate a lighting theme based on this topic "{{TOPIC}}". Write a line for each light formatted in csv with these fields:
+lifxId - string - The id from lifx for the target light.
+hue - int - Between 0 and 360, representing the color hue in degree which changes the color.
+saturation - int - Between 0 and 100, representing the color intensity from 0% to 100%.
+brightness - int - Between 0 and 100, representing the light brightness from 0% to 100%.
+kelvin - int - Between 2500 and 9000, representing the color temperature.
+duration - int - Fade the color to the new value over time (in milliseconds).
