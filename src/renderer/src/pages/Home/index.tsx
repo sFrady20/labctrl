@@ -72,7 +72,8 @@ const useMusicMode = create<{
     });
   },
   deactivate: () => {
-    scheduler.clearTimeoutOrInterval(get().interval);
+    const activeInterval = get().interval;
+    if (activeInterval) scheduler.clearTimeoutOrInterval(get().interval);
     set({ isActive: false, isBusy: false });
   },
 }));
@@ -92,38 +93,40 @@ type LightingStore = {
 
 export const useLightingStore = create(
   persist<LightingStore>(
-    (set, get) => ({
-      activeTheme: undefined,
-      activateTheme: (theme) => {
-        window.main.invoke("setLightingTheme", theme, {
-          relativeBrightness: get().relativeBrightness,
-        });
-        set((x) => ({ ...x, activeTheme: theme }));
-      },
-      themes: [],
-      addTheme: (theme) => set((x) => ({ ...x, themes: [...x.themes, theme] })),
-      removeTheme: (id) =>
-        set((x) => ({ ...x, themes: x.themes.filter((x) => x.id !== id) })),
-      relativeBrightness: 0.5,
-      setRelativeBrightness: (value) => {
-        set((x) => ({ ...x, relativeBrightness: value }));
-        const activeTheme = get().activeTheme;
-        if (!activeTheme) return;
-        debouncedSetLightingTheme(activeTheme, value);
-      },
-      musicMode: false,
-      isMusicModeBusy: false,
-      toggleMusicMode: async (to?: boolean) => {
-        const current = get().musicMode;
-        const next = to === undefined ? !current : to;
-        if (next) {
-          useMusicMode.getState().activate(get().activateTheme);
-        } else if (musicModeInterval) {
-          useMusicMode.getState().deactivate();
-        }
-        set((x) => ({ ...x, musicMode: next }));
-      },
-    }),
+    (set, get) =>
+      ({
+        activeTheme: undefined,
+        activateTheme: (theme) => {
+          window.main.invoke("setLightingTheme", theme, {
+            relativeBrightness: get().relativeBrightness,
+          });
+          set((x) => ({ ...x, activeTheme: theme }));
+        },
+        themes: [],
+        addTheme: (theme) =>
+          set((x) => ({ ...x, themes: [...x.themes, theme] })),
+        removeTheme: (id) =>
+          set((x) => ({ ...x, themes: x.themes.filter((x) => x.id !== id) })),
+        relativeBrightness: 0.5,
+        setRelativeBrightness: (value) => {
+          set((x) => ({ ...x, relativeBrightness: value }));
+          const activeTheme = get().activeTheme;
+          if (!activeTheme) return;
+          debouncedSetLightingTheme(activeTheme, value);
+        },
+        musicMode: false,
+        isMusicModeBusy: false,
+        toggleMusicMode: async (to?: boolean) => {
+          const current = get().musicMode;
+          const next = to === undefined ? !current : to;
+          if (next) {
+            useMusicMode.getState().activate(get().activateTheme);
+          } else if (musicModeInterval) {
+            useMusicMode.getState().deactivate();
+          }
+          set((x) => ({ ...x, musicMode: next }));
+        },
+      } satisfies LightingStore),
     {
       name: "lighting-store",
     }
@@ -198,6 +201,13 @@ export default function HomePage() {
   //activate theme on mount
   useEffect(() => {
     if (activeTheme) activateTheme(activeTheme);
+  }, []);
+
+  //deactivate music mode on unmount (for HMR)
+  useEffect(() => {
+    return () => {
+      musicMode.deactivate();
+    };
   }, []);
 
   const generate = useAsync(
