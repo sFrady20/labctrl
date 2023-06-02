@@ -3,6 +3,11 @@
   box-sizing: border-box;
 }
 
+body {
+  background: #030712;
+  color: #eee;
+}
+
 #root {
   min-height: 100svh;
   display: flex;

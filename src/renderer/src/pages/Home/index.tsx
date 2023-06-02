@@ -81,7 +81,7 @@ function PasteButton(props: { onPaste?: (theme: LightingTheme) => void }) {
 
   return (
     <button
-      className="b-none px-4 h-10 cursor-pointer bg-gray-100 hover:bg-gray-200 font-semibold flex items-center justify-center space-x-2"
+      className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
       onClick={async (e) => {
         e.stopPropagation();
         const theme = JSON.parse(
@@ -108,7 +108,7 @@ function CopyButton(props: { theme: LightingTheme }) {
 
   return (
     <button
-      className="p-2 rounded-md hover:bg-gray-100"
+      className="p-2 rounded-md hover:bg-gray-800"
       onClick={async (e) => {
         e.stopPropagation();
         await navigator.clipboard.writeText(JSON.stringify(theme));
@@ -163,21 +163,21 @@ export default function HomePage() {
   return (
     <div className="flex-1 flex flex-col space-y-4 w-full p-4">
       <div className="flex flex-row space-x-3">
-        <div className="flex flex-row b-1 b-gray-300 b-solid bg-gray-50 rounded-lg overflow-hidden">
+        <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
           <button
-            className="b-none px-4 h-10 cursor-pointer bg-gray-100 hover:bg-gray-200 font-semibold flex items-center justify-center space-x-2"
+            className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
             onClick={() => window.main.invoke("turnLightsOn")}
           >
             <div className="i-bx-bxs-sun" />
           </button>
           <button
-            className="b-none px-4 h-10 cursor-pointer bg-gray-100 hover:bg-gray-200 font-semibold flex items-center justify-center space-x-2"
+            className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
             onClick={() => window.main.invoke("turnLightsOff")}
           >
             <div className="i-bx-bxs-moon" />
           </button>
         </div>
-        <div className="flex flex-row b-1 b-gray-300 b-solid bg-gray-50 rounded-lg overflow-hidden">
+        <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
           <PasteButton onPaste={addTheme} />
         </div>
         <input
@@ -193,16 +193,16 @@ export default function HomePage() {
         />
       </div>
 
-      <div className="flex flex-col b-1 b-gray-300 b-solid bg-gray-50 rounded-lg overflow-hidden">
+      <div className="flex flex-col b-1 b-gray-900 b-solid  rounded-lg overflow-hidden">
         <textarea
           disabled={generate.loading}
-          className="p-4 b-none rounded-t-lg"
+          className="p-4 b-none rounded-t-lg bg-gray-800 text-[#eee]"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
         />
-        <div className="h-0 b-0 b-t-1 b-solid b-gray-300 w-full" />
+        <div className="h-0 b-0 b-t-1 b-solid b-gray-900 w-full" />
         <button
-          className="h-10 cursor-pointer bg-gray-100 font-semibold hover:bg-gray-200 flex items-center justify-center"
+          className="h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center"
           disabled={generate.loading}
           onClick={async () => {
             generate.execute(topic, relativeBrightness);
@@ -217,7 +217,7 @@ export default function HomePage() {
       </div>
 
       <div
-        className="bg-gray-200 px-3 h-11 rounded-lg b-1 b-solid b-gray-200 flex flex-row items-center color-[#121212] cursor-pointer hover:bg-gray-300"
+        className="bg-gray-800 px-3 h-11 rounded-lg b-1 b-solid b-gray-900 flex flex-row items-center cursor-pointer hover:bg-gray-700"
         onClick={
           matchMusic.loading
             ? () => {}
@@ -248,7 +248,7 @@ export default function HomePage() {
         {themes.map((x, i) => (
           <div
             key={i}
-            className="flex justify-between items-center b-1 b-gray-300 b-solid rounded-lg px-2 h-11 space-x-3 hover:bg-gray-50 cursor-pointer group"
+            className="flex justify-between items-center b-1 b-gray-900 b-solid rounded-lg px-2 h-11 space-x-3 hover:bg-gray-900 cursor-pointer group"
             onClick={() => {
               activateTheme(x);
             }}
@@ -274,7 +274,7 @@ export default function HomePage() {
             <div className="hidden group-hover:block ">
               <CopyButton theme={x} />
               <button
-                className="p-2 rounded-md hover:bg-red-100"
+                className="p-2 rounded-md hover:bg-red-950"
                 onClick={(e) => {
                   e.stopPropagation();
                   removeTheme(x.id);
