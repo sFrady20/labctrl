@@ -6,18 +6,13 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import debounce from "lodash/debounce";
 import type { LightingTheme } from "@main/services/Lifx/types";
+import { TimerBasedCronScheduler as scheduler } from "cron-schedule/schedulers/timer-based.js";
+import { parseCronExpression } from "cron-schedule";
 
-type LightingStore = {
-  activeTheme?: LightingTheme;
-  activateTheme: (theme: LightingTheme) => void;
-  themes: LightingTheme[];
-  addTheme: (theme: LightingTheme) => void;
-  removeTheme: (name: string) => void;
-  relativeBrightness: number;
-  setRelativeBrightness: (number: number) => void;
-  musicMode: boolean;
-  toggleMusicMode: (to?: boolean) => void;
-};
+type CronScheduleTimer = ReturnType<(typeof scheduler)["setInterval"]>;
+
+const musicModeCron = parseCronExpression("*/15 * * * * *");
+let musicModeInterval: CronScheduleTimer | undefined = undefined;
 
 const debouncedSetLightingTheme = debounce(
   (theme: LightingTheme, relativeBrightness?: number) => {
@@ -28,6 +23,72 @@ const debouncedSetLightingTheme = debounce(
   300,
   { trailing: true }
 );
+
+const useMusicMode = create<{
+  isBusy: boolean;
+  isActive: boolean;
+  interval?: CronScheduleTimer | undefined;
+  activate: (onSuccess: (theme: LightingTheme) => void) => void;
+  deactivate: () => void;
+}>((set, get) => ({
+  isBusy: false,
+  isActive: false,
+  interval: undefined,
+  activate: (onSuccess) => {
+    set({
+      isActive: true,
+      interval: scheduler.setInterval(musicModeCron, async () => {
+        if (get().isBusy) return;
+
+        try {
+          set({ isBusy: true });
+          const song = await window.main.invoke("getCurrentSpotifySong");
+
+          if (!song) throw new Error("No song playing");
+
+          console.log(
+            "TESTING SONG ID",
+            song.id,
+            useLightingStore.getState().activeTheme?.spotifySongId
+          );
+
+          if (
+            song.id === useLightingStore.getState().activeTheme?.spotifySongId
+          )
+            throw new Error("Song theme already active");
+
+          const result = await window.main.invoke("songToLightingTheme", song);
+
+          if (result.status === "error")
+            throw new Error(`Theme creation error: ${result.message}`);
+
+          onSuccess(result.theme);
+        } catch (err: any) {
+          console.log(err.meessage);
+        } finally {
+          set({ isBusy: false });
+        }
+      }),
+    });
+  },
+  deactivate: () => {
+    scheduler.clearTimeoutOrInterval(get().interval);
+    set({ isActive: false, isBusy: false });
+  },
+}));
+
+type LightingStore = {
+  activeTheme?: LightingTheme;
+  activateTheme: (theme: LightingTheme) => void;
+  themes: LightingTheme[];
+  addTheme: (theme: LightingTheme) => void;
+  removeTheme: (name: string) => void;
+  relativeBrightness: number;
+  setRelativeBrightness: (number: number) => void;
+  musicMode: boolean;
+  isMusicModeBusy: boolean;
+  toggleMusicMode: (to?: boolean, options?: { onTick?: () => void }) => void;
+};
 
 export const useLightingStore = create(
   persist<LightingStore>(
@@ -51,19 +112,14 @@ export const useLightingStore = create(
         debouncedSetLightingTheme(activeTheme, value);
       },
       musicMode: false,
+      isMusicModeBusy: false,
       toggleMusicMode: async (to?: boolean) => {
         const current = get().musicMode;
         const next = to === undefined ? !current : to;
         if (next) {
-          const song = await window.main.invoke("getCurrentSpotifySong");
-          console.log("song", song);
-          if (song) {
-            const result = await window.main.invoke(
-              "songToLightingTheme",
-              song
-            );
-            if (result.status === "success") await get().addTheme(result.theme);
-          }
+          useMusicMode.getState().activate(get().activateTheme);
+        } else if (musicModeInterval) {
+          useMusicMode.getState().deactivate();
         }
         set((x) => ({ ...x, musicMode: next }));
       },
@@ -135,10 +191,11 @@ export default function HomePage() {
     activeTheme,
     activateTheme,
     setRelativeBrightness,
-    musicMode,
-    toggleMusicMode,
   } = useLightingStore();
 
+  const musicMode = useMusicMode();
+
+  //activate theme on mount
   useEffect(() => {
     if (activeTheme) activateTheme(activeTheme);
   }, []);
@@ -152,99 +209,101 @@ export default function HomePage() {
     { executeOnMount: false, executeOnUpdate: false }
   );
 
-  const matchMusic = useAsync(
-    async () => {
-      await toggleMusicMode(true);
-    },
-    [],
-    { executeOnMount: false, executeOnUpdate: false }
-  );
-
   return (
-    <div className="flex-1 flex flex-col space-y-4 w-full p-4">
-      <div className="flex flex-row space-x-3">
-        <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
-          <button
-            className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
-            onClick={() => window.main.invoke("turnLightsOn")}
-          >
-            <div className="i-bx-bxs-sun" />
-          </button>
-          <button
-            className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
-            onClick={() => window.main.invoke("turnLightsOff")}
-          >
-            <div className="i-bx-bxs-moon" />
-          </button>
-        </div>
-        <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
-          <PasteButton onPaste={addTheme} />
-        </div>
-        <input
-          type="range"
-          className="flex-1"
-          value={relativeBrightness}
-          min={0}
-          max={1}
-          step={0.01}
-          onChange={(e) => {
-            setRelativeBrightness(parseFloat(e.target.value));
-          }}
-        />
-      </div>
-
-      <div className="flex flex-col b-1 b-gray-900 b-solid  rounded-lg overflow-hidden">
-        <textarea
-          disabled={generate.loading}
-          className="p-4 b-none rounded-t-lg bg-gray-800 text-[#eee]"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-        />
-        <div className="h-0 b-0 b-t-1 b-solid b-gray-900 w-full" />
-        <button
-          className="h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center"
-          disabled={generate.loading}
-          onClick={async () => {
-            generate.execute(topic, relativeBrightness);
-          }}
-        >
-          {generate.loading ? (
-            <div className="i-svg-spinners-3-dots-fade" />
-          ) : (
-            "Generate"
-          )}
-        </button>
-      </div>
-
-      <div
-        className="bg-gray-800 px-3 h-11 rounded-lg b-1 b-solid b-gray-900 flex flex-row items-center cursor-pointer hover:bg-gray-700"
-        onClick={
-          matchMusic.loading
-            ? () => {}
-            : musicMode
-            ? () => toggleMusicMode(false)
-            : () => matchMusic.execute()
-        }
-      >
-        <div className="flex flex-row items-center space-x-2 flex-1">
-          <div className="i-bx-bxl-spotify text-[#1db954] text-[24px]" />
-          <div className="font-semibold">Music mode</div>
-        </div>
-        <div className="flex flex-row space-x-2">
-          <div
-            className={clsx(
-              "text-[24px]",
-              matchMusic.loading
-                ? "i-svg-spinners-3-dots-fade"
-                : musicMode
-                ? "i-bx-checkbox-checked"
-                : "i-bx-checkbox text-[24px"
-            )}
+    <div className="flex-1 flex flex-col space-y-4 w-full">
+      <div className="space-y-4 sticky top-0 bg-gray-950 z-100 p-4">
+        <div className="flex flex-row space-x-3">
+          <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
+            <button
+              className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
+              onClick={() => window.main.invoke("turnLightsOn")}
+            >
+              <div className="i-bx-bxs-sun" />
+            </button>
+            <button
+              className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
+              onClick={() => window.main.invoke("turnLightsOff")}
+            >
+              <div className="i-bx-bxs-moon" />
+            </button>
+          </div>
+          <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
+            <PasteButton onPaste={addTheme} />
+          </div>
+          <input
+            type="range"
+            className="flex-1"
+            value={relativeBrightness}
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={(e) => {
+              setRelativeBrightness(parseFloat(e.target.value));
+            }}
           />
         </div>
+
+        <div className="flex flex-col b-1 b-gray-900 b-solid  rounded-lg overflow-hidden">
+          <textarea
+            disabled={generate.loading}
+            className="p-4 b-none rounded-t-lg bg-gray-800 text-[#eee]"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+          />
+          <div className="h-0 b-0 b-t-1 b-solid b-gray-900 w-full" />
+          <button
+            className="h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center"
+            disabled={generate.loading}
+            onClick={async () => {
+              generate.execute(topic, relativeBrightness);
+            }}
+          >
+            {generate.loading ? (
+              <div className="i-svg-spinners-3-dots-fade" />
+            ) : (
+              "Generate"
+            )}
+          </button>
+        </div>
+
+        <div
+          className={clsx(
+            "bg-gray-800 px-3 h-11 rounded-lg b-1 b-solid b-gray-900 flex flex-row items-center",
+            musicMode.isBusy
+              ? "cursor-wait opacity-60"
+              : "cursor-pointer hover:bg-gray-700"
+          )}
+          onClick={() =>
+            musicMode.isBusy
+              ? undefined
+              : musicMode.isActive
+              ? musicMode.deactivate()
+              : musicMode.activate(activateTheme)
+          }
+        >
+          <div className="flex flex-row items-center space-x-2 flex-1">
+            <div className="i-bx-bxl-spotify text-[#1db954] text-[24px]" />
+            <div className="font-semibold">Music mode</div>
+          </div>
+          <div className="flex flex-row space-x-2">
+            <div
+              className={clsx(
+                "text-[24px]",
+                musicMode.isBusy
+                  ? "i-svg-spinners-3-dots-fade"
+                  : musicMode.isActive
+                  ? "i-bx-checkbox-checked"
+                  : "i-bx-checkbox text-[24px",
+                {
+                  "text-green-500": musicMode.isActive && !musicMode.isBusy,
+                }
+              )}
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-1 px-6 pb-4">
         {themes.map((x, i) => (
           <div
             key={i}

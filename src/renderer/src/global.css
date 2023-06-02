@@ -1,17 +1,31 @@
-* {
-  margin: 0;
-  box-sizing: border-box;
+body {
+  @apply bg-gray-950 text-gray-300;
 }
 
-body {
-  background: #030712;
-  color: #eee;
+textarea:focus {
+  outline: none;
 }
 
 #root {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  @apply flex flex-col items-center justify-center min-h-[100svh];
+}
+
+/* width */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-gray-950;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-900 rounded-sm;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
 }

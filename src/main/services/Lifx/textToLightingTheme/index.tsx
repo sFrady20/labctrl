@@ -7,6 +7,7 @@ import { LightingTheme } from "../types";
 
 export async function textToLightingTheme(topic) {
   try {
+    console.log(`Prompting text to lighting theme for topic "${topic}"`);
     const response = await prompt({
       model: "gpt-3.5-turbo",
       messages: [

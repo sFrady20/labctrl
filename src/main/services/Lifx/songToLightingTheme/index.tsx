@@ -4,17 +4,13 @@ import coreContext from "./context-1.txt?raw";
 import roomContext from "./context-2.txt?raw";
 import request from "./request.txt?raw";
 import lights from "../lights";
+import { LightingTheme, Song } from "../types";
 
-export async function songToLightingTheme(details: {
-  title: string;
-  album: string;
-  artist: string;
-  images: string[];
-}) {
+export async function songToLightingTheme(song: Song) {
   try {
     const colors = (
       await Promise.all(
-        details.images.map(async (x) => await Vibrant.from(x).getPalette())
+        song.images.map(async (x) => await Vibrant.from(x).getPalette())
       )
     )
       .flatMap((x) => [
@@ -27,8 +23,7 @@ export async function songToLightingTheme(details: {
       ])
       .filter((x) => x !== undefined);
 
-    console.log("COLORS", colors);
-
+    console.log(`Prompting song to lighting theme for song "${song.title}"`);
     const response = await prompt({
       model: "gpt-3.5-turbo",
       messages: [
@@ -46,9 +41,9 @@ export async function songToLightingTheme(details: {
         {
           role: "user",
           content: request
-            .replace("{{SONG_TITLE}}", details.title)
-            .replace("{{ALBUM}}", details.album)
-            .replace("{{ARTIST}}", details.artist)
+            .replace("{{SONG_TITLE}}", song.title)
+            .replace("{{ALBUM}}", song.album)
+            .replace("{{ARTIST}}", song.artist)
             .replace("{{COLORS}}", colors.join(", ")),
         },
       ],
@@ -64,7 +59,8 @@ export async function songToLightingTheme(details: {
         id: Math.random().toString(32).substring(7),
         name,
         instructions,
-      },
+        spotifySongId: song.id,
+      } satisfies LightingTheme,
     };
   } catch (err: any) {
     console.error(err);

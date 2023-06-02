@@ -1,5 +1,6 @@
 import lifx from "./client";
 import { findBezierCurveY } from "./bezier";
+import { LightingOptions, LightingTheme } from "./types";
 
 export const turnLightsOn = async () => {
   lifx.lights(undefined).forEach((light) => light.on());
@@ -9,15 +10,8 @@ export const turnLightsOff = async () => {
   lifx.lights(undefined).forEach((light) => light.off());
 };
 
-export type LightingOptions = {
-  relativeBrightness?: number;
-  movieMode?: boolean;
-};
 export const setLightingTheme = async (
-  theme: {
-    name: string;
-    instructions: string[][];
-  },
+  theme: LightingTheme,
   options?: LightingOptions
 ) => {
   const { instructions } = theme;
@@ -34,6 +28,8 @@ export const setLightingTheme = async (
   for (let i = 0; i < instructions.length; ++i) {
     const [lifxId, ...args] = instructions[i];
     const light = lifx.light(lifxId);
+    if (!light) continue;
+
     const values = args.map((x) => parseInt(x));
 
     //map brightess to relative curve
