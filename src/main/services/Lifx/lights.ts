@@ -39,6 +39,6 @@ export default [
     id: "aux",
     lifxId: "d073d53e2d56",
     description:
-      "A desk light that shines down on an auxilliary desk in the office.",
+      "An extra powerful desk light that shines down on an auxilliary desk in the office.",
   },
 ];

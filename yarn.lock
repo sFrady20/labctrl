@@ -550,12 +550,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@iconify-json/ion@npm:^1.1.10":
-  version: 1.1.10
-  resolution: "@iconify-json/ion@npm:1.1.10"
+"@iconify-json/bx@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "@iconify-json/bx@npm:1.1.6"
   dependencies:
     "@iconify/types": "*"
-  checksum: 31f0f34a14488199e5b53169e879cab1ce870c7a39900ba5da6fdf867b5059da760308ccb9dd4b819f8c6233c376e4d6f60da7ec42173da2c88800dd69805df5
+  checksum: a5a2288ab2b2c2ae12f216a4ca15932e78b13d79b9b9d67f045d19f01c75eeb4075f60e19d1caf6e19f59b8ecfbd58cf741956ee2c80d7349e155cdb68b2cc41
   languageName: node
   linkType: hard
 
@@ -844,6 +844,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: e009a2bfb50e90ca9b7c6e8f648f8464067271fd99116f881073fa6fa76dc8d0133181dd65e6614d5fb1220d671d67b0124aef7d97dc02d7e342ab143a47779d
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:^4.14.195":
+  version: 4.14.195
+  resolution: "@types/lodash@npm:4.14.195"
+  checksum: 39b75ca635b3fa943d17d3d3aabc750babe4c8212485a4df166fe0516e39288e14b0c60afc6e21913cc0e5a84734633c71e617e2bd14eaa1cf51b8d7799c432e
   languageName: node
   linkType: hard
 
@@ -3289,7 +3296,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.15":
+"lodash@npm:^4.17.15, lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -4504,9 +4511,10 @@ __metadata:
     "@electron-toolkit/tsconfig": ^1.0.1
     "@electron-toolkit/utils": ^1.0.2
     "@electron/notarize": ^1.2.3
-    "@iconify-json/ion": ^1.1.10
+    "@iconify-json/bx": ^1.1.6
     "@iconify-json/svg-spinners": ^1.1.1
     "@types/color": ^3.0.3
+    "@types/lodash": ^4.14.195
     "@types/node": ^20.2.5
     "@types/react": ^18.2.7
     "@types/react-dom": ^18.2.4
@@ -4520,6 +4528,7 @@ __metadata:
     electron-updater: ^5.3.0
     electron-vite: ^1.0.22
     lifx-lan-client: ^2.1.0
+    lodash: ^4.17.21
     prettier: ^2.8.8
     react: ^18.2.0
     react-async-hook: ^4.0.0

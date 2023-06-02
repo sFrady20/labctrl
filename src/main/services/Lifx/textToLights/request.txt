@@ -17,3 +17,5 @@ d073d53e360a, 165, 90, 60, 4500, 500
 d073d53e30cd, 165, 90, 60, 4500, 500
 d073d53e2d56, 55, 90, 90, 5500, 500
 ```
+
+Using 0 for the hue and saturation will result in the light showing as the temperature value. Avoid using neutral tones as this can cause some unanticipated effects.
