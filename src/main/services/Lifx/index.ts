@@ -1,15 +1,5 @@
-import z from "zod";
 import lifx from "./client";
 import { findBezierCurveY } from "./bezier";
-
-const lightParser = z.object({ label: z.string(), id: z.string() });
-
-export const getLights = async () => {
-  const lights: z.infer<typeof lightParser>[] = lifx
-    .lights(undefined)
-    .map(lightParser.parse);
-  return lights;
-};
 
 export const turnLightsOn = async () => {
   lifx.lights(undefined).forEach((light) => light.on());
@@ -19,21 +9,25 @@ export const turnLightsOff = async () => {
   lifx.lights(undefined).forEach((light) => light.off());
 };
 
+export type LightingOptions = {
+  relativeBrightness?: number;
+  movieMode?: boolean;
+};
 export const setLightingTheme = async (
   theme: {
     name: string;
     instructions: string[][];
   },
-  options?: { relativeBrightness?: number }
+  options?: LightingOptions
 ) => {
   const { instructions } = theme;
-  const { relativeBrightness } = options || {};
+  const { relativeBrightness, movieMode } = options || {};
 
   console.log(
-    `Activating theme "${theme.name}"${
+    `Activating theme \"${theme.name}\"${
       relativeBrightness === undefined
         ? ""
-        : `at ${relativeBrightness} brightness`
+        : ` at ${relativeBrightness} brightness`
     }`
   );
 
@@ -59,10 +53,5 @@ export const setLightingTheme = async (
   }
 };
 
-export const randomizeLighting = async () => {
-  lifx
-    .lights(undefined)
-    .forEach((light) => light.color(Math.random() * 360, 100, 50));
-};
-
-export { textToLights } from "./textToLights";
+export { textToLightingTheme } from "./textToLightingTheme";
+export { songToLightingTheme } from "./songToLightingTheme";

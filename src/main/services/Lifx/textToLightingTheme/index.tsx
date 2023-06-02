@@ -3,12 +3,9 @@ import coreContext from "./context-1.txt?raw";
 import roomContext from "./context-2.txt?raw";
 import request from "./request.txt?raw";
 import lights from "../lights";
-import { setLightingTheme } from "..";
+import { LightingTheme } from "../types";
 
-export async function textToLights(
-  topic,
-  options?: { relativeBrightness?: number }
-) {
+export async function textToLightingTheme(topic) {
   try {
     const response = await prompt({
       model: "gpt-3.5-turbo",
@@ -29,15 +26,16 @@ export async function textToLights(
     });
 
     const lines = response.split("\n");
-    const name = lines[0];
-    const instructions = lines.slice(1).map((x) => x.split(","));
-    await setLightingTheme({ name, instructions }, options);
+
+    const theme: LightingTheme = {
+      id: Math.random().toString(32).substring(7),
+      name: lines[0],
+      instructions: lines.slice(1).map((x) => x.split(",")),
+    };
 
     return {
       status: "success" as const,
-      id: Math.random().toString(32).substring(7),
-      name,
-      instructions,
+      theme,
     };
   } catch (err: any) {
     console.error(err);

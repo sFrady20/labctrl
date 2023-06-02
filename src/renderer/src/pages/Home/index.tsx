@@ -5,21 +5,22 @@ import { useAsync } from "react-async-hook";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import debounce from "lodash/debounce";
-
-type Theme = { id: string; name: string; instructions: string[][] };
+import type { LightingTheme } from "@main/services/Lifx/types";
 
 type LightingStore = {
-  activeTheme?: Theme;
-  activateTheme: (theme: Theme) => void;
-  themes: Theme[];
-  addTheme: (theme: Theme) => void;
+  activeTheme?: LightingTheme;
+  activateTheme: (theme: LightingTheme) => void;
+  themes: LightingTheme[];
+  addTheme: (theme: LightingTheme) => void;
   removeTheme: (name: string) => void;
   relativeBrightness: number;
   setRelativeBrightness: (number: number) => void;
+  musicMode: boolean;
+  toggleMusicMode: (to?: boolean) => void;
 };
 
 const debouncedSetLightingTheme = debounce(
-  (theme: Theme, relativeBrightness?: number) => {
+  (theme: LightingTheme, relativeBrightness?: number) => {
     window.main.invoke("setLightingTheme", theme, {
       relativeBrightness,
     });
@@ -49,6 +50,23 @@ export const useLightingStore = create(
         if (!activeTheme) return;
         debouncedSetLightingTheme(activeTheme, value);
       },
+      musicMode: false,
+      toggleMusicMode: async (to?: boolean) => {
+        const current = get().musicMode;
+        const next = to === undefined ? !current : to;
+        if (next) {
+          const song = await window.main.invoke("getCurrentSpotifySong");
+          console.log("song", song);
+          if (song) {
+            const result = await window.main.invoke(
+              "songToLightingTheme",
+              song
+            );
+            if (result.status === "success") await get().addTheme(result.theme);
+          }
+        }
+        set((x) => ({ ...x, musicMode: next }));
+      },
     }),
     {
       name: "lighting-store",
@@ -56,7 +74,7 @@ export const useLightingStore = create(
   )
 );
 
-function PasteButton(props: { onPaste?: (theme: Theme) => void }) {
+function PasteButton(props: { onPaste?: (theme: LightingTheme) => void }) {
   const { onPaste } = props;
   const [hasPasted, setPasted] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout>();
@@ -66,7 +84,9 @@ function PasteButton(props: { onPaste?: (theme: Theme) => void }) {
       className="b-none px-4 h-10 cursor-pointer bg-gray-100 hover:bg-gray-200 font-semibold flex items-center justify-center space-x-2"
       onClick={async (e) => {
         e.stopPropagation();
-        const theme = JSON.parse(await navigator.clipboard.readText()) as Theme;
+        const theme = JSON.parse(
+          await navigator.clipboard.readText()
+        ) as LightingTheme;
         theme.id = Math.random().toString(32).substring(7);
         onPaste?.(theme);
         setPasted(true);
@@ -81,7 +101,7 @@ function PasteButton(props: { onPaste?: (theme: Theme) => void }) {
   );
 }
 
-function CopyButton(props: { theme: Theme }) {
+function CopyButton(props: { theme: LightingTheme }) {
   const { theme } = props;
   const [hasCopied, setCopied] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout>();
@@ -115,6 +135,8 @@ export default function HomePage() {
     activeTheme,
     activateTheme,
     setRelativeBrightness,
+    musicMode,
+    toggleMusicMode,
   } = useLightingStore();
 
   useEffect(() => {
@@ -123,12 +145,18 @@ export default function HomePage() {
 
   const generate = useAsync(
     async (topic, relativeBrightness) => {
-      const result = await window.main.invoke("textToLights", topic, {
-        relativeBrightness,
-      });
-      if (result.status === "success") addTheme(result);
+      const result = await window.main.invoke("textToLightingTheme", topic);
+      if (result.status === "success") addTheme(result.theme);
     },
     [topic, relativeBrightness],
+    { executeOnMount: false, executeOnUpdate: false }
+  );
+
+  const matchMusic = useAsync(
+    async () => {
+      await toggleMusicMode(true);
+    },
+    [],
     { executeOnMount: false, executeOnUpdate: false }
   );
 
@@ -188,6 +216,34 @@ export default function HomePage() {
         </button>
       </div>
 
+      <div
+        className="bg-gray-200 px-3 h-11 rounded-lg b-1 b-solid b-gray-200 flex flex-row items-center color-[#121212] cursor-pointer hover:bg-gray-300"
+        onClick={
+          matchMusic.loading
+            ? () => {}
+            : musicMode
+            ? () => toggleMusicMode(false)
+            : () => matchMusic.execute()
+        }
+      >
+        <div className="flex flex-row items-center space-x-2 flex-1">
+          <div className="i-bx-bxl-spotify text-[#1db954] text-[24px]" />
+          <div className="font-semibold">Music mode</div>
+        </div>
+        <div className="flex flex-row space-x-2">
+          <div
+            className={clsx(
+              "text-[24px]",
+              matchMusic.loading
+                ? "i-svg-spinners-3-dots-fade"
+                : musicMode
+                ? "i-bx-checkbox-checked"
+                : "i-bx-checkbox text-[24px"
+            )}
+          />
+        </div>
+      </div>
+
       <div className="flex flex-col space-y-1">
         {themes.map((x, i) => (
           <div
@@ -197,6 +253,9 @@ export default function HomePage() {
               activateTheme(x);
             }}
           >
+            {activeTheme?.id === x.id && (
+              <div className="i-bx-bxs-check-circle text-green-500" />
+            )}
             <div className="text-sm font-medium flex-1">{x.name}</div>
             <div className="flex items-center space-x-1">
               {x.instructions.map((x, i) => (
@@ -205,7 +264,8 @@ export default function HomePage() {
                   className="rounded-full w-2 h-2"
                   style={{
                     backgroundColor: new Color(
-                      `hsl(${x[1]},${x[2]}%,${x[3]}%)`
+                      [x[1], x[2], x[3]].map(parseFloat),
+                      "hsv"
                     ).hex(),
                   }}
                 />
