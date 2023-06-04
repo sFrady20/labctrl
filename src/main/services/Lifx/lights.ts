@@ -42,14 +42,8 @@ export default [
       "An extra powerful desk light that shines down on an auxilliary desk in the office.",
   },
   {
-    id: "sink1",
+    id: "shower",
     lifxId: "d073d5719a96",
     description: "A light that shines down into the shower in the bathroom.",
-  },
-  {
-    id: "sink2",
-    lifxId: "d073d53e30cd",
-    description:
-      "A light above the sink in the bathroom with a broken red LED. Design the lighting theme so that this light is always a combination of green and blue or white.",
   },
 ];
