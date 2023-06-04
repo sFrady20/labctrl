@@ -31,7 +31,7 @@ export default [
   },
   {
     id: "spotlight2",
-    lifxId: "d073d53e30cd",
+    lifxId: "d073d572de6f",
     description:
       "A small spotlight in a set of two spotlights that shine up the corner wall behind a computer screen. This light is on the left side when facing the computer screen.",
   },
@@ -40,5 +40,16 @@ export default [
     lifxId: "d073d53e2d56",
     description:
       "An extra powerful desk light that shines down on an auxilliary desk in the office.",
+  },
+  {
+    id: "sink1",
+    lifxId: "d073d5719a96",
+    description: "A light that shines down into the shower in the bathroom.",
+  },
+  {
+    id: "sink2",
+    lifxId: "d073d53e30cd",
+    description:
+      "A light above the sink in the bathroom with a broken red LED. Design the lighting theme so that this light is always a combination of green and blue or white.",
   },
 ];

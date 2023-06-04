@@ -6,13 +6,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import debounce from "lodash/debounce";
 import type { LightingTheme } from "@main/services/Lifx/types";
-import { TimerBasedCronScheduler as scheduler } from "cron-schedule/schedulers/timer-based.js";
-import { parseCronExpression } from "cron-schedule";
-
-type CronScheduleTimer = ReturnType<(typeof scheduler)["setInterval"]>;
-
-const musicModeCron = parseCronExpression("*/15 * * * * *");
-let musicModeInterval: CronScheduleTimer | undefined = undefined;
+import { MusicMode, useMusicMode } from "./MusicMode";
+import { useNavigate } from "react-router";
 
 const debouncedSetLightingTheme = debounce(
   (theme: LightingTheme, relativeBrightness?: number) => {
@@ -24,60 +19,6 @@ const debouncedSetLightingTheme = debounce(
   { trailing: true }
 );
 
-const useMusicMode = create<{
-  isBusy: boolean;
-  isActive: boolean;
-  interval?: CronScheduleTimer | undefined;
-  activate: (onSuccess: (theme: LightingTheme) => void) => void;
-  deactivate: () => void;
-}>((set, get) => ({
-  isBusy: false,
-  isActive: false,
-  interval: undefined,
-  activate: (onSuccess) => {
-    set({
-      isActive: true,
-      interval: scheduler.setInterval(musicModeCron, async () => {
-        if (get().isBusy) return;
-
-        try {
-          set({ isBusy: true });
-          const song = await window.main.invoke("getCurrentSpotifySong");
-
-          if (!song) throw new Error("No song playing");
-
-          console.log(
-            "TESTING SONG ID",
-            song.id,
-            useLightingStore.getState().activeTheme?.spotifySongId
-          );
-
-          if (
-            song.id === useLightingStore.getState().activeTheme?.spotifySongId
-          )
-            throw new Error("Song theme already active");
-
-          const result = await window.main.invoke("songToLightingTheme", song);
-
-          if (result.status === "error")
-            throw new Error(`Theme creation error: ${result.message}`);
-
-          onSuccess(result.theme);
-        } catch (err: any) {
-          console.log(err.meessage);
-        } finally {
-          set({ isBusy: false });
-        }
-      }),
-    });
-  },
-  deactivate: () => {
-    const activeInterval = get().interval;
-    if (activeInterval) scheduler.clearTimeoutOrInterval(get().interval);
-    set({ isActive: false, isBusy: false });
-  },
-}));
-
 type LightingStore = {
   activeTheme?: LightingTheme;
   activateTheme: (theme: LightingTheme) => void;
@@ -86,12 +27,9 @@ type LightingStore = {
   removeTheme: (name: string) => void;
   relativeBrightness: number;
   setRelativeBrightness: (number: number) => void;
-  musicMode: boolean;
-  isMusicModeBusy: boolean;
-  toggleMusicMode: (to?: boolean, options?: { onTick?: () => void }) => void;
 };
 
-export const useLightingStore = create(
+export const useLighting = create(
   persist<LightingStore>(
     (set, get) =>
       ({
@@ -113,18 +51,6 @@ export const useLightingStore = create(
           const activeTheme = get().activeTheme;
           if (!activeTheme) return;
           debouncedSetLightingTheme(activeTheme, value);
-        },
-        musicMode: false,
-        isMusicModeBusy: false,
-        toggleMusicMode: async (to?: boolean) => {
-          const current = get().musicMode;
-          const next = to === undefined ? !current : to;
-          if (next) {
-            useMusicMode.getState().activate(get().activateTheme);
-          } else if (musicModeInterval) {
-            useMusicMode.getState().deactivate();
-          }
-          set((x) => ({ ...x, musicMode: next }));
         },
       } satisfies LightingStore),
     {
@@ -194,20 +120,13 @@ export default function HomePage() {
     activeTheme,
     activateTheme,
     setRelativeBrightness,
-  } = useLightingStore();
-
+  } = useLighting();
   const musicMode = useMusicMode();
+  const navigate = useNavigate();
 
   //activate theme on mount
   useEffect(() => {
     if (activeTheme) activateTheme(activeTheme);
-  }, []);
-
-  //deactivate music mode on unmount (for HMR)
-  useEffect(() => {
-    return () => {
-      musicMode.deactivate();
-    };
   }, []);
 
   const generate = useAsync(
@@ -251,6 +170,14 @@ export default function HomePage() {
               setRelativeBrightness(parseFloat(e.target.value));
             }}
           />
+          <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
+            <button
+              className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
+              onClick={() => navigate("/settings")}
+            >
+              <div className="i-bx-dots-horizontal-rounded" />
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col b-1 b-gray-900 b-solid  rounded-lg overflow-hidden">
@@ -276,50 +203,17 @@ export default function HomePage() {
           </button>
         </div>
 
-        <div
-          className={clsx(
-            "bg-gray-800 px-3 h-11 rounded-lg b-1 b-solid b-gray-900 flex flex-row items-center",
-            musicMode.isBusy
-              ? "cursor-wait opacity-60"
-              : "cursor-pointer hover:bg-gray-700"
-          )}
-          onClick={() =>
-            musicMode.isBusy
-              ? undefined
-              : musicMode.isActive
-              ? musicMode.deactivate()
-              : musicMode.activate(activateTheme)
-          }
-        >
-          <div className="flex flex-row items-center space-x-2 flex-1">
-            <div className="i-bx-bxl-spotify text-[#1db954] text-[24px]" />
-            <div className="font-semibold">Music mode</div>
-          </div>
-          <div className="flex flex-row space-x-2">
-            <div
-              className={clsx(
-                "text-[24px]",
-                musicMode.isBusy
-                  ? "i-svg-spinners-3-dots-fade"
-                  : musicMode.isActive
-                  ? "i-bx-checkbox-checked"
-                  : "i-bx-checkbox text-[24px",
-                {
-                  "text-green-500": musicMode.isActive && !musicMode.isBusy,
-                }
-              )}
-            />
-          </div>
-        </div>
+        <MusicMode />
       </div>
 
       <div className="flex flex-col space-y-1 px-6 pb-4">
         {themes.map((x, i) => (
           <div
             key={i}
-            className="flex justify-between items-center b-1 b-gray-900 b-solid rounded-lg px-2 h-11 space-x-3 hover:bg-gray-900 cursor-pointer group"
+            className="flex justify-between items-center rounded-lg px-2 h-11 space-x-3 hover:bg-gray-900 cursor-pointer group"
             onClick={() => {
               activateTheme(x);
+              musicMode.deactivate();
             }}
           >
             {activeTheme?.id === x.id && (

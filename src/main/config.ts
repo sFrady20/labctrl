@@ -10,6 +10,6 @@ export const SPOTIFY_CLIENT_SECRET =
   import.meta.env.MAIN_VITE_SPOTIFY_CLIENT_SECRET ||
   process.env.MAIN_VITE_SPOTIFY_CLIENT_SECRET;
 
-export const SPOTIFY_TOKEN =
-  import.meta.env.MAIN_VITE_SPOTIFY_TOKEN ||
-  process.env.MAIN_VITE_SPOTIFY_TOKEN;
+export const SPOTIFY_REFRESH_TOKEN =
+  import.meta.env.MAIN_VITE_SPOTIFY_REFRESH_TOKEN ||
+  process.env.MAIN_VITE_SPOTIFY_REFRESH_TOKEN;

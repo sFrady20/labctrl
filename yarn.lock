@@ -1003,6 +1003,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/luxon@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@types/luxon@npm:3.3.0"
+  checksum: f7e3a89fc3ca404fbc3ea538653ed6860bc28f570a8c4d6d24449b89b9b553b7d6ad6cc94a9e129c5b8c9a2b97f0c365b3017f811e59c4a859a9c219a1c918e0
+  languageName: node
+  linkType: hard
+
 "@types/minimatch@npm:*":
   version: 5.1.2
   resolution: "@types/minimatch@npm:5.1.2"
@@ -3625,6 +3632,52 @@ __metadata:
   languageName: node
   linkType: hard
 
+"labctrl@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "labctrl@workspace:."
+  dependencies:
+    "@electron-toolkit/preload": ^1.0.3
+    "@electron-toolkit/tsconfig": ^1.0.1
+    "@electron-toolkit/utils": ^1.0.2
+    "@electron/notarize": ^1.2.3
+    "@iconify-json/bx": ^1.1.6
+    "@iconify-json/svg-spinners": ^1.1.1
+    "@types/color": ^3.0.3
+    "@types/lodash": ^4.14.195
+    "@types/luxon": ^3.3.0
+    "@types/node": ^20.2.5
+    "@types/react": ^18.2.7
+    "@types/react-dom": ^18.2.4
+    "@types/spotify-web-api-node": ^5.0.7
+    "@unocss/reset": ^0.52.7
+    "@vitejs/plugin-react": ^4.0.0
+    axios: ^1.4.0
+    clsx: ^1.2.1
+    color: ^4.2.3
+    cron-schedule: ^4.0.0
+    electron: ^25.0.0
+    electron-builder: ^23.6.0
+    electron-updater: ^5.3.0
+    electron-vite: ^1.0.22
+    lifx-lan-client: ^2.1.0
+    lodash: ^4.17.21
+    luxon: ^3.3.0
+    node-vibrant: ^3.2.1-alpha.1
+    prettier: ^2.8.8
+    react: ^18.2.0
+    react-async-hook: ^4.0.0
+    react-dom: ^18.2.0
+    react-router: ^6.11.2
+    react-router-dom: ^6.11.2
+    swr: ^2.1.5
+    typescript: ^5.0.4
+    unocss: ^0.52.6
+    vite: ^4.3.9
+    zod: ^3.21.4
+    zustand: ^4.3.8
+  languageName: unknown
+  linkType: soft
+
 "lazy-val@npm:^1.0.4, lazy-val@npm:^1.0.5":
   version: 1.0.5
   resolution: "lazy-val@npm:1.0.5"
@@ -3744,6 +3797,13 @@ __metadata:
   version: 7.18.3
   resolution: "lru-cache@npm:7.18.3"
   checksum: e550d772384709deea3f141af34b6d4fa392e2e418c1498c078de0ee63670f1f46f5eee746e8ef7e69e1c895af0d4224e62ee33e66a543a14763b0f2e74c1356
+  languageName: node
+  linkType: hard
+
+"luxon@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "luxon@npm:3.3.0"
+  checksum: 50cf17a0dc155c3dcacbeae8c0b7e80db425e0ba97b9cbdf12a7fc142d841ff1ab1560919f033af46240ed44e2f70c49f76e3422524c7fc8bb8d81ca47c66187
   languageName: node
   linkType: hard
 
@@ -5064,50 +5124,6 @@ __metadata:
   checksum: 8e2b90321c9d865ad3e9e613cc524c9a9e22cd7820d3c8378840a01ab720116f4de4d340bbca6a50a9562b37f8ce614451fdb02dc2f993b4f9866cf81840b3cb
   languageName: node
   linkType: hard
-
-"template-desktop@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "template-desktop@workspace:."
-  dependencies:
-    "@electron-toolkit/preload": ^1.0.3
-    "@electron-toolkit/tsconfig": ^1.0.1
-    "@electron-toolkit/utils": ^1.0.2
-    "@electron/notarize": ^1.2.3
-    "@iconify-json/bx": ^1.1.6
-    "@iconify-json/svg-spinners": ^1.1.1
-    "@types/color": ^3.0.3
-    "@types/lodash": ^4.14.195
-    "@types/node": ^20.2.5
-    "@types/react": ^18.2.7
-    "@types/react-dom": ^18.2.4
-    "@types/spotify-web-api-node": ^5.0.7
-    "@unocss/reset": ^0.52.7
-    "@vitejs/plugin-react": ^4.0.0
-    axios: ^1.4.0
-    clsx: ^1.2.1
-    color: ^4.2.3
-    cron-schedule: ^4.0.0
-    electron: ^25.0.0
-    electron-builder: ^23.6.0
-    electron-updater: ^5.3.0
-    electron-vite: ^1.0.22
-    lifx-lan-client: ^2.1.0
-    lodash: ^4.17.21
-    node-vibrant: ^3.2.1-alpha.1
-    prettier: ^2.8.8
-    react: ^18.2.0
-    react-async-hook: ^4.0.0
-    react-dom: ^18.2.0
-    react-router: ^6.11.2
-    react-router-dom: ^6.11.2
-    swr: ^2.1.5
-    typescript: ^5.0.4
-    unocss: ^0.52.6
-    vite: ^4.3.9
-    zod: ^3.21.4
-    zustand: ^4.3.8
-  languageName: unknown
-  linkType: soft
 
 "timm@npm:^1.6.1":
   version: 1.7.1

@@ -1,4 +1,4 @@
-import { app } from "electron";
+import { OpenExternalOptions, app, shell } from "electron";
 import Main, { type InferMainAPI } from "./main";
 import * as lifx from "./services/Lifx";
 import * as chatGPT from "./services/ChatGPT";
@@ -9,6 +9,9 @@ const main = new Main(
     ...lifx,
     ...chatGPT,
     ...spotify,
+    openExternal(url: string, options?: OpenExternalOptions) {
+      shell.openExternal(url, options);
+    },
     quit() {
       app.quit();
     },

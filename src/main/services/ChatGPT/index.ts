@@ -13,10 +13,9 @@ export async function prompt(p: Prompt) {
     })
   ).data.choices[0].message.content as string;
 
-  fs.appendFileSync(
-    path.join(__dirname, "./gpt.log"),
-    `---------\n${JSON.stringify({ prompt: p, response })}\n`
-  );
+  const location = path.join(__dirname, "./gpt.log");
+  console.log(`output to ${location}`);
+  fs.appendFileSync(location, `${JSON.stringify({ prompt: p, response })}\n`);
 
   return response;
 }

@@ -10,6 +10,12 @@ export const turnLightsOff = async () => {
   lifx.lights(undefined).forEach((light) => light.off());
 };
 
+export const getAllLights = async () => {
+  const lights = await lifx.lights(undefined);
+  console.log(lights);
+  return {};
+};
+
 export const setLightingTheme = async (
   theme: LightingTheme,
   options?: LightingOptions
