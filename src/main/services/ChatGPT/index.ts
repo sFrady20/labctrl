@@ -1,3 +1,4 @@
+import { is } from "@electron-toolkit/utils";
 import { OPEN_AI_API_KEY } from "@main/config";
 import axios from "axios";
 import fs from "fs";
@@ -15,7 +16,8 @@ export async function prompt(p: Prompt) {
 
   const location = path.join(__dirname, "./gpt.log");
   console.log(`output to ${location}`);
-  fs.appendFileSync(location, `${JSON.stringify({ prompt: p, response })}\n`);
+  if (is.dev)
+    fs.appendFileSync(location, `${JSON.stringify({ prompt: p, response })}\n`);
 
   return response;
 }
