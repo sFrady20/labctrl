@@ -35,12 +35,6 @@ export const useMusicMode = create<{
 
           set({ playing: song });
 
-          console.log(
-            "TESTING SONG ID",
-            song.id,
-            useLighting.getState().activeTheme?.spotifySongId
-          );
-
           if (song.id === useLighting.getState().activeTheme?.spotifySongId)
             throw new Error("Song theme already active");
 
