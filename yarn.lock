@@ -855,6 +855,73 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-spring/animated@npm:~9.7.2":
+  version: 9.7.2
+  resolution: "@react-spring/animated@npm:9.7.2"
+  dependencies:
+    "@react-spring/shared": ~9.7.2
+    "@react-spring/types": ~9.7.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 08f2f1e54468776b2abf76e3c3504129b8d965875781bc1cfd40adddff8f310869ecfb6d18e937df8ed63a01b3d0cb2335fb531be03ddf25f6f58583a91e08e7
+  languageName: node
+  linkType: hard
+
+"@react-spring/core@npm:~9.7.2":
+  version: 9.7.2
+  resolution: "@react-spring/core@npm:9.7.2"
+  dependencies:
+    "@react-spring/animated": ~9.7.2
+    "@react-spring/rafz": ~9.7.2
+    "@react-spring/shared": ~9.7.2
+    "@react-spring/types": ~9.7.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 7d14369d6bc3cb4f51bce946a0499484bd03a06b2602edd1f0478806759fd2a5f0800892cdf8d38a3bd4ef949f3c61de65933c46784683ea757f16db710a04fd
+  languageName: node
+  linkType: hard
+
+"@react-spring/rafz@npm:~9.7.2":
+  version: 9.7.2
+  resolution: "@react-spring/rafz@npm:9.7.2"
+  checksum: 88ad6275ed172745c7cd309e6a06bb52b76b6f391510afcf8ad12d1fc50950e74f902f96bcaae0895ab75e47a1d809d36fe843ce8d3d0d2ea2d6700ff9e03d81
+  languageName: node
+  linkType: hard
+
+"@react-spring/shared@npm:~9.7.2":
+  version: 9.7.2
+  resolution: "@react-spring/shared@npm:9.7.2"
+  dependencies:
+    "@react-spring/rafz": ~9.7.2
+    "@react-spring/types": ~9.7.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: f3041a537dddad63c64e68890f3276b72c4e2d5828621a09dbd722edb7a12edc0026555118f8305b969253f44e409ddd411dd5b99ec4e04edea32bee5e5f57fd
+  languageName: node
+  linkType: hard
+
+"@react-spring/types@npm:~9.7.2":
+  version: 9.7.2
+  resolution: "@react-spring/types@npm:9.7.2"
+  checksum: 145a79d2f40dfc9f0a4b54db17890c6471b4e50563c01951ca13022977b0d8009865c1839cf07a762fd33ae0b83f2d6972e2d0fe50bd3105942b9cea5253612e
+  languageName: node
+  linkType: hard
+
+"@react-spring/web@npm:^9.7.2":
+  version: 9.7.2
+  resolution: "@react-spring/web@npm:9.7.2"
+  dependencies:
+    "@react-spring/animated": ~9.7.2
+    "@react-spring/core": ~9.7.2
+    "@react-spring/shared": ~9.7.2
+    "@react-spring/types": ~9.7.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: f872dfd9bbbfc27f32e4406076729a36169e2da3785709fbf981b7d3a77a1a430d7f295b300a9acc8cb4805d0965e6d9a54914a4263abfd96806b7ae53ba69cd
+  languageName: node
+  linkType: hard
+
 "@remix-run/router@npm:1.6.2":
   version: 1.6.2
   resolution: "@remix-run/router@npm:1.6.2"
@@ -1109,6 +1176,13 @@ __metadata:
   version: 7.5.0
   resolution: "@types/semver@npm:7.5.0"
   checksum: 0a64b9b9c7424d9a467658b18dd70d1d781c2d6f033096a6e05762d20ebbad23c1b69b0083b0484722aabf35640b78ccc3de26368bcae1129c87e9df028a22e2
+  languageName: node
+  linkType: hard
+
+"@types/sortablejs@npm:^1.15.1":
+  version: 1.15.1
+  resolution: "@types/sortablejs@npm:1.15.1"
+  checksum: 242c0350f63b86541d667d5aa5d1695a9b98644a1c1f52b537f7733baf187dd2618fadde4deab01e655ebf06294cebf0a889ebebf9202ef0a8750a7afed3ecfd
   languageName: node
   linkType: hard
 
@@ -2076,6 +2150,13 @@ __metadata:
   version: 3.8.0
   resolution: "ci-info@npm:3.8.0"
   checksum: d0a4d3160497cae54294974a7246202244fff031b0a6ea20dd57b10ec510aa17399c41a1b0982142c105f3255aff2173e5c0dd7302ee1b2f28ba3debda375098
+  languageName: node
+  linkType: hard
+
+"classnames@npm:2.3.1":
+  version: 2.3.1
+  resolution: "classnames@npm:2.3.1"
+  checksum: 14db8889d56c267a591f08b0834989fe542d47fac659af5a539e110cc4266694e8de86e4e3bbd271157dbd831361310a8293e0167141e80b0f03a0f175c80960
   languageName: node
   linkType: hard
 
@@ -3642,12 +3723,14 @@ __metadata:
     "@electron/notarize": ^1.2.3
     "@iconify-json/bx": ^1.1.6
     "@iconify-json/svg-spinners": ^1.1.1
+    "@react-spring/web": ^9.7.2
     "@types/color": ^3.0.3
     "@types/lodash": ^4.14.195
     "@types/luxon": ^3.3.0
     "@types/node": ^20.2.5
     "@types/react": ^18.2.7
     "@types/react-dom": ^18.2.4
+    "@types/sortablejs": ^1.15.1
     "@types/spotify-web-api-node": ^5.0.7
     "@unocss/reset": ^0.52.7
     "@vitejs/plugin-react": ^4.0.0
@@ -3669,6 +3752,8 @@ __metadata:
     react-dom: ^18.2.0
     react-router: ^6.11.2
     react-router-dom: ^6.11.2
+    react-sortablejs: ^6.1.4
+    sortablejs: ^1.15.0
     swr: ^2.1.5
     typescript: ^5.0.4
     unocss: ^0.52.6
@@ -4598,6 +4683,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-sortablejs@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "react-sortablejs@npm:6.1.4"
+  dependencies:
+    classnames: 2.3.1
+    tiny-invariant: 1.2.0
+  peerDependencies:
+    "@types/sortablejs": 1
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+    sortablejs: 1
+  checksum: d53eebb29abb5366108b4295c489b1eb822a504da017e98ea710be032aefd8b38340043c1aa057ea16858f69f47ca0ecbe4a0a2dae43473ff91d4b79e26cd6aa
+  languageName: node
+  linkType: hard
+
 "react@npm:^18.2.0":
   version: 18.2.0
   resolution: "react@npm:18.2.0"
@@ -4961,6 +5061,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sortablejs@npm:^1.15.0":
+  version: 1.15.0
+  resolution: "sortablejs@npm:1.15.0"
+  checksum: bb82223a663484640d317cad510ac987f26b7a443631040407224de1be069afcc6c39048b6d8527f10f269e33595e8128d7de2fac23517c8260470f77f932d55
+  languageName: node
+  linkType: hard
+
 "source-map-js@npm:^1.0.1, source-map-js@npm:^1.0.2":
   version: 1.0.2
   resolution: "source-map-js@npm:1.0.2"
@@ -5129,6 +5236,13 @@ __metadata:
   version: 1.7.1
   resolution: "timm@npm:1.7.1"
   checksum: c80df538ec7fae50a0e3183931b20fbe97f6f2c06907d9675eb7b9d90b3f788af7742285c730192db3b066c4ab22ebae75f8d21970c5b03f38d928d5bb2a0339
+  languageName: node
+  linkType: hard
+
+"tiny-invariant@npm:1.2.0":
+  version: 1.2.0
+  resolution: "tiny-invariant@npm:1.2.0"
+  checksum: e09a718a7c4a499ba592cdac61f015d87427a0867ca07f50c11fd9b623f90cdba18937b515d4a5e4f43dac92370498d7bdaee0d0e7a377a61095e02c4a92eade
   languageName: node
   linkType: hard
 

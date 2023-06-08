@@ -1,14 +1,16 @@
 import { RouterProvider, createHashRouter } from "react-router-dom";
 import DefaultLayout from "./layouts/Default";
-import HomePage from "./pages/Home";
+import LightingPage from "./pages/Lighting";
 import SettingsPage from "./pages/Settings";
+import { TasksPage } from "./pages/Tasks";
 
 const router = createHashRouter([
   {
     path: "/",
     Component: DefaultLayout,
     children: [
-      { path: "/", Component: HomePage },
+      { path: "/", Component: LightingPage },
+      { path: "/tasks", Component: TasksPage },
       { path: "/settings", Component: SettingsPage },
     ],
   },

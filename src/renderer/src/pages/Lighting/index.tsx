@@ -109,7 +109,7 @@ export function CopyButton(props: { theme: LightingTheme }) {
   );
 }
 
-export default function HomePage() {
+export default function LightingPage() {
   const [topic, setTopic] = useState("");
 
   const {

@@ -1,0 +1,3 @@
+.bins :global(.sortable-ghost) {
+  display: none !important;
+}

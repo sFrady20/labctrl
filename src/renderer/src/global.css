@@ -1,5 +1,5 @@
 body {
-  @apply bg-gray-950 text-gray-300;
+  @apply bg-gray-950 text-gray-300 overflow-y-scroll;
 }
 
 textarea:focus {
