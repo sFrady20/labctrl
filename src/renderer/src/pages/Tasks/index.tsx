@@ -14,6 +14,8 @@ const useTasks = create(
   persist<{
     input: string;
     setInput: (value: string) => void;
+    tab: string;
+    setTab: (value: string) => void;
     lists: { [key: string]: Task[] | undefined };
     addTask: (message: string, list?: string) => Task;
     moveTask: (id: string, fromList: string, toList: string) => void;
@@ -22,6 +24,8 @@ const useTasks = create(
     (set, get) => ({
       input: "",
       setInput: (value) => set({ input: value }),
+      tab: "default",
+      setTab: (value) => set({ tab: value }),
       lists: {},
       addTask: (message: string, list = "default") => {
         const task: Task = {
@@ -76,17 +80,15 @@ function ListedTask(props: { task: Task; list: string }) {
       >
         <div
           className={clsx("p-1", {
-            "i-bx-checkbox": task.status === undefined,
-            "i-bx-bxs-checkbox-checked text-green-500":
-              task.status === "complete",
-            "i-bx-x text-gray-600": task.status === "discarded",
+            "i-bx-checkbox": list === "default",
+            "i-bx-bxs-checkbox-checked text-green-500": list === "completed",
+            "i-bx-x text-gray-600": list === "discarded",
           })}
         />
       </div>
       <div
         className={clsx("text-sm py-[6px]", {
-          "opacity-20":
-            task.status === "complete" || task.status === "discarded",
+          "opacity-20": list === "completed" || list === "discarded",
         })}
       >
         {task.message}
@@ -102,47 +104,43 @@ export function TasksPage() {
     <div className="space-y-4 p-4 flex flex-col flex-1">
       <div
         className={clsx(
-          "flex flex-row self-end rounded-lg space-x-1 b-1 b-solid b-gray-800 divide-x-1 divide-solid divide-gray-800",
+          "flex flex-row self-end rounded-lg b-1 b-solid b-gray-800 divide-x-1 divide-solid divide-gray-800 overflow-hidden",
           styles.bins
         )}
       >
-        <ReactSortable
-          list={tasks.lists["default"] || []}
-          setList={(list) => tasks.setTasks("default", list)}
-          className="px-4 h-8 flex flex-row items-center text-xs font-semibold cursor-pointer"
-          group={"tasks"}
-          draggable={".task"}
-        >
-          <div>Active</div>
-        </ReactSortable>
-        <ReactSortable
-          list={tasks.lists["completed"] || []}
-          setList={(list) => tasks.setTasks("completed", list)}
-          className="px-4 h-8 flex flex-row items-center text-xs font-semibold cursor-pointer"
-          group={"tasks"}
-          draggable={".task"}
-        >
-          <div>Completed</div>
-        </ReactSortable>
-        <ReactSortable
-          list={tasks.lists["discarded"] || []}
-          setList={(list) => tasks.setTasks("discarded", list)}
-          className="px-4 h-8 flex flex-row items-center text-xs font-semibold cursor-pointer"
-          group={"tasks"}
-          draggable={".task"}
-        >
-          <div>Discarded</div>
-        </ReactSortable>
+        {[
+          { label: "Active", tab: "default" },
+          { label: "Completed", tab: "completed" },
+          { label: "Discarded", tab: "discarded" },
+        ].map(({ label, tab }, i) => (
+          <ReactSortable
+            key={i}
+            list={tasks.lists[tab] || []}
+            setList={(list) => tasks.setTasks(tab, list)}
+            group={"tasks"}
+            draggable={".task"}
+          >
+            <div
+              className={clsx(
+                "px-4 h-8 flex flex-row items-center text-xs font-semibold cursor-pointer",
+                { "bg-gray-900": tasks.tab === tab }
+              )}
+              onClick={() => tasks.setTab(tab)}
+            >
+              {label}
+            </div>
+          </ReactSortable>
+        ))}
       </div>
       <ReactSortable
         className="flex flex-col rounded-lg overflow-hidden space-y-1"
-        list={tasks.lists["default"] || []}
-        setList={(list) => tasks.setTasks("default", list)}
+        list={tasks.lists[tasks.tab] || []}
+        setList={(list) => tasks.setTasks(tasks.tab, list)}
         group={"tasks"}
         draggable={".task"}
       >
-        {(tasks.lists["default"] || []).map((task) => (
-          <ListedTask key={task.id} task={task} list="default" />
+        {(tasks.lists[tasks.tab] || []).map((task) => (
+          <ListedTask key={task.id} task={task} list={tasks.tab} />
         ))}
       </ReactSortable>
       <textarea

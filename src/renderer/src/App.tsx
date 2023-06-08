@@ -1,4 +1,4 @@
-import { RouterProvider, createHashRouter } from "react-router-dom";
+import { RouterProvider, createHashRouter, redirect } from "react-router-dom";
 import DefaultLayout from "./layouts/Default";
 import LightingPage from "./pages/Lighting";
 import SettingsPage from "./pages/Settings";
@@ -9,8 +9,15 @@ const router = createHashRouter([
     path: "/",
     Component: DefaultLayout,
     children: [
-      { path: "/", Component: LightingPage },
+      {
+        path: "/",
+        Component: () => {
+          redirect("/tasks");
+          return null;
+        },
+      },
       { path: "/tasks", Component: TasksPage },
+      { path: "/lighting", Component: LightingPage },
       { path: "/settings", Component: SettingsPage },
     ],
   },

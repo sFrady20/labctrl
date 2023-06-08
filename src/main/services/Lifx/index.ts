@@ -51,6 +51,8 @@ export const setLightingTheme = async (
         : values[2];
     }
 
+    values[4] = Math.min(5000, values[4]);
+
     light.color(...values);
   }
 };

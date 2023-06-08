@@ -8,6 +8,7 @@ import debounce from "lodash/debounce";
 import type { LightingTheme } from "@main/services/Lifx/types";
 import { MusicMode, useMusicMode } from "./MusicMode";
 import { useNavigate } from "react-router";
+import { ReactSortable } from "react-sortablejs";
 
 const debouncedSetLightingTheme = debounce(
   (theme: LightingTheme, relativeBrightness?: number) => {
@@ -25,6 +26,7 @@ type LightingStore = {
   themes: LightingTheme[];
   addTheme: (theme: LightingTheme) => void;
   removeTheme: (name: string) => void;
+  setThemes: (theme: LightingTheme[]) => void;
   relativeBrightness: number;
   setRelativeBrightness: (number: number) => void;
 };
@@ -45,6 +47,7 @@ export const useLighting = create(
           set((x) => ({ ...x, themes: [...x.themes, theme] })),
         removeTheme: (id) =>
           set((x) => ({ ...x, themes: x.themes.filter((x) => x.id !== id) })),
+        setThemes: (themes) => set((x) => ({ ...x, themes })),
         relativeBrightness: 0.5,
         setRelativeBrightness: (value) => {
           set((x) => ({ ...x, relativeBrightness: value }));
@@ -112,27 +115,19 @@ export function CopyButton(props: { theme: LightingTheme }) {
 export default function LightingPage() {
   const [topic, setTopic] = useState("");
 
-  const {
-    relativeBrightness,
-    themes,
-    addTheme,
-    removeTheme,
-    activeTheme,
-    activateTheme,
-    setRelativeBrightness,
-  } = useLighting();
+  const lighting = useLighting();
   const musicMode = useMusicMode();
   const navigate = useNavigate();
 
   //activate theme on mount
   useEffect(() => {
-    if (activeTheme) activateTheme(activeTheme);
+    if (lighting.activeTheme) lighting.activateTheme(lighting.activeTheme);
   }, []);
 
   const generate = useAsync(
     async (topic) => {
       const result = await window.main.invoke("textToLightingTheme", topic);
-      if (result.status === "success") addTheme(result.theme);
+      if (result.status === "success") lighting.addTheme(result.theme);
     },
     [topic],
     { executeOnMount: false, executeOnUpdate: false }
@@ -146,9 +141,9 @@ export default function LightingPage() {
         theme,
         topic
       );
-      if (result.status === "success") addTheme(result.theme);
+      if (result.status === "success") lighting.addTheme(result.theme);
     },
-    [activeTheme, topic],
+    [lighting.activeTheme, topic],
     { executeOnMount: false, executeOnUpdate: false }
   );
 
@@ -171,17 +166,17 @@ export default function LightingPage() {
             </button>
           </div>
           <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
-            <PasteButton onPaste={addTheme} />
+            <PasteButton onPaste={lighting.addTheme} />
           </div>
           <input
             type="range"
             className="flex-1"
-            value={relativeBrightness}
+            value={lighting.relativeBrightness}
             min={0}
             max={1}
             step={0.01}
             onChange={(e) => {
-              setRelativeBrightness(parseFloat(e.target.value));
+              lighting.setRelativeBrightness(parseFloat(e.target.value));
             }}
           />
           <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
@@ -218,9 +213,11 @@ export default function LightingPage() {
             </button>
             <button
               className="flex-1 h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center disabled:opacity-60 disabled:hover-bg-gray-900 disabled:cursor-default"
-              disabled={generate.loading || alter.loading || !activeTheme}
+              disabled={
+                generate.loading || alter.loading || !lighting.activeTheme
+              }
               onClick={async () => {
-                alter.execute(activeTheme, topic);
+                alter.execute(lighting.activeTheme, topic);
               }}
             >
               {alter.loading ? (
@@ -235,17 +232,22 @@ export default function LightingPage() {
         <MusicMode />
       </div>
 
-      <div className="flex flex-col space-y-1 px-6 pb-4">
-        {themes.map((x, i) => (
+      <ReactSortable
+        className="flex flex-col space-y-1 px-6 pb-4"
+        list={lighting.themes}
+        setList={lighting.setThemes}
+        animation={150}
+      >
+        {lighting.themes.map((x, i) => (
           <div
             key={i}
             className="flex justify-between items-center rounded-lg px-2 h-11 space-x-3 hover:bg-gray-900 cursor-pointer group"
             onClick={() => {
-              activateTheme(x);
+              lighting.activateTheme(x);
               musicMode.deactivate();
             }}
           >
-            {activeTheme?.id === x.id && (
+            {lighting.activeTheme?.id === x.id && (
               <div className="i-bx-bxs-check-circle text-green-500" />
             )}
             <div className="text-sm font-medium flex-1">{x.name}</div>
@@ -269,7 +271,7 @@ export default function LightingPage() {
                 className="p-2 rounded-md hover:bg-red-950"
                 onClick={(e) => {
                   e.stopPropagation();
-                  removeTheme(x.id);
+                  lighting.removeTheme(x.id);
                 }}
               >
                 <div className="i-bx-trash text-red-500 " />
@@ -277,7 +279,7 @@ export default function LightingPage() {
             </div>
           </div>
         ))}
-      </div>
+      </ReactSortable>
     </div>
   );
 }
