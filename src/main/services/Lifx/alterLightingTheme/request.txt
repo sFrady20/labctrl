@@ -1,0 +1,7 @@
+Given this JSON object of the current theme:
+{{CURRENT_THEME}}
+
+return the them in the lighting theme format that makes after an alteration with this instruction applied:
+{{ALTERATION}}
+
+The theme should include values for each light in this list of ids: {{LIGHT_IDS}}

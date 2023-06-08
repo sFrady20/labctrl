@@ -1,0 +1,24 @@
+Here are instructions to create a lighting theme.
+
+On the first line write a 1 or 2 word name for the theme for quick identification. Then, write a line for each light formatted in csv with these fields:
+lifxId - string - The id from lifx for the target light.
+hue - int - Between 0 and 360, representing the color hue in degree which changes the color.
+saturation - int - Between 0 and 100, representing the color intensity from 0% to 100%.
+brightness - int - Between 0 and 100, representing the light brightness from 0% to 100%.
+kelvin - int - Between 2500 and 9000, representing the color temperature.
+duration - int - Fade the color to the new value over time (in milliseconds).
+
+for example
+```
+Morning Bloom Blues
+(light_id), 55, 90, 90, 5500, 500
+(light_id), 45, 50, 70, 4500, 500
+(light_id), 55, 90, 90, 5500, 500
+(light_id), 45, 50, 70, 4500, 500
+(light_id), 55, 90, 90, 5500, 500
+(light_id), 45, 50, 70, 4500, 500
+(light_id), 55, 90, 90, 5500, 500
+(light_id), 45, 50, 70, 4500, 500
+```
+
+Remember! Always respond with complete themes, never partial (even for alterations.) Note that using 0 for the hue and saturation will result in the light showing as the temperature value. Avoid using neutral tones as this can cause some unanticipated effects.

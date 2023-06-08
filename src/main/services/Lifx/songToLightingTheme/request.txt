@@ -1,17 +1,3 @@
-Generate a lighting theme for a song based off of these colors - {{COLORS}}. the song is titled "{{SONG_TITLE}}" on the album "{{ALBUM}}" by the artist "{{ARTIST}}". On the first line write a 1 or 2 word name for the theme for quick identification. Then, write a line for each light formatted in csv with these fields:
-lifxId - string - The id from lifx for the target light.
-hue - int - Between 0 and 360, representing the color hue in degree which changes the color.
-saturation - int - Between 0 and 100, representing the color intensity from 0% to 100%.
-brightness - int - Between 0 and 100, representing the light brightness from 0% to 100%.
-kelvin - int - Between 2500 and 9000, representing the color temperature.
-duration - int - Fade the color to the new value over time (in milliseconds).
+Generate a lighting theme for a song based off of these colors - {{COLORS}}. the song is titled "{{SONG_TITLE}}" on the album "{{ALBUM}}" by the artist "{{ARTIST}}". On the first line write a 1 or 2 word name for the theme for quick identification.
 
-for example
-```
-Morning Bloom Blues
-d073d52cb301, 55, 90, 90, 5500, 500
-d073d52df872, 45, 50, 70, 4500, 500
-...continue for each light
-```
-
-Using 0 for the hue and saturation will result in the light showing as the temperature value. Avoid using neutral tones as this can cause some unanticipated effects.
+The theme should include values for each light in this list of ids: {{LIGHT_IDS}}

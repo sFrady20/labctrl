@@ -86,7 +86,7 @@ function PasteButton(props: { onPaste?: (theme: LightingTheme) => void }) {
   );
 }
 
-function CopyButton(props: { theme: LightingTheme }) {
+export function CopyButton(props: { theme: LightingTheme }) {
   const { theme } = props;
   const [hasCopied, setCopied] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout>();
@@ -130,11 +130,25 @@ export default function HomePage() {
   }, []);
 
   const generate = useAsync(
-    async (topic, relativeBrightness) => {
+    async (topic) => {
       const result = await window.main.invoke("textToLightingTheme", topic);
       if (result.status === "success") addTheme(result.theme);
     },
-    [topic, relativeBrightness],
+    [topic],
+    { executeOnMount: false, executeOnUpdate: false }
+  );
+
+  const alter = useAsync(
+    async (theme: LightingTheme | undefined, topic: string) => {
+      if (!theme) return;
+      const result = await window.main.invoke(
+        "alterLightingTheme",
+        theme,
+        topic
+      );
+      if (result.status === "success") addTheme(result.theme);
+    },
+    [activeTheme, topic],
     { executeOnMount: false, executeOnUpdate: false }
   );
 
@@ -182,25 +196,40 @@ export default function HomePage() {
 
         <div className="flex flex-col b-1 b-gray-900 b-solid  rounded-lg overflow-hidden">
           <textarea
-            disabled={generate.loading}
-            className="p-4 b-none rounded-t-lg bg-gray-800 text-[#eee]"
+            placeholder="Write in a topic to generate or an alteration to the current theme..."
+            disabled={generate.loading || alter.loading}
+            className="p-4 b-none rounded-t-lg bg-gray-800 text-[#eee] text-sm disabled:opacity-60"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
           />
-          <div className="h-0 b-0 b-t-1 b-solid b-gray-900 w-full" />
-          <button
-            className="h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center"
-            disabled={generate.loading}
-            onClick={async () => {
-              generate.execute(topic, relativeBrightness);
-            }}
-          >
-            {generate.loading ? (
-              <div className="i-svg-spinners-3-dots-fade" />
-            ) : (
-              "Generate"
-            )}
-          </button>
+          <div className="flex flex-row">
+            <button
+              className="flex-1 h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center disabled:opacity-60 disabled:hover-bg-gray-900 disabled:cursor-default"
+              disabled={generate.loading || alter.loading}
+              onClick={async () => {
+                generate.execute(topic);
+              }}
+            >
+              {generate.loading ? (
+                <div className="i-svg-spinners-3-dots-fade" />
+              ) : (
+                "Generate"
+              )}
+            </button>
+            <button
+              className="flex-1 h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center disabled:opacity-60 disabled:hover-bg-gray-900 disabled:cursor-default"
+              disabled={generate.loading || alter.loading || !activeTheme}
+              onClick={async () => {
+                alter.execute(activeTheme, topic);
+              }}
+            >
+              {alter.loading ? (
+                <div className="i-svg-spinners-3-dots-fade" />
+              ) : (
+                "Alter"
+              )}
+            </button>
+          </div>
         </div>
 
         <MusicMode />

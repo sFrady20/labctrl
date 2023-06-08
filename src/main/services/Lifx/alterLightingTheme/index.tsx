@@ -1,31 +1,21 @@
-import Vibrant from "node-vibrant";
 import { prompt } from "@main/services/ChatGPT";
+import { LightingTheme } from "../types";
 import coreContext from "../context-1.txt?raw";
 import roomContext from "../context-2.txt?raw";
 import formatContext from "../context-3.txt?raw";
 import request from "./request.txt?raw";
 import lights from "../lights";
-import { LightingTheme, Song } from "../types";
 import { parseLightingTheme } from "../parseLightingTheme";
 
-export async function songToLightingTheme(song: Song) {
+export async function alterLightingTheme(
+  theme: LightingTheme,
+  alteration: string
+) {
   try {
-    const colors = (
-      await Promise.all(
-        song.images.map(async (x) => await Vibrant.from(x).getPalette())
-      )
-    )
-      .flatMap((x) => [
-        x.Vibrant?.hex,
-        x.Muted?.hex,
-        x.LightVibrant?.hex,
-        x.LightMuted?.hex,
-        x.DarkVibrant?.hex,
-        x.LightVibrant?.hex,
-      ])
-      .filter((x) => x !== undefined);
+    console.log(
+      `Prompting alteration to theme "${theme.name}" - "${alteration}"`
+    );
 
-    console.log(`Prompting song to lighting theme for song "${song.title}"`);
     const response = await prompt({
       model: "gpt-3.5-turbo",
       messages: [
@@ -47,10 +37,8 @@ export async function songToLightingTheme(song: Song) {
         {
           role: "user",
           content: request
-            .replace("{{SONG_TITLE}}", song.title)
-            .replace("{{ALBUM}}", song.album)
-            .replace("{{ARTIST}}", song.artist)
-            .replace("{{COLORS}}", colors.join(", "))
+            .replace("{{CURRENT_THEME}}", JSON.stringify(theme))
+            .replace("{{ALTERATION}}", alteration)
             .replace("{{LIGHT_IDS}}", lights.map((x) => x.lifxId).join(", ")),
         },
       ],
@@ -59,8 +47,8 @@ export async function songToLightingTheme(song: Song) {
     return {
       status: "success" as const,
       theme: {
+        ...theme,
         ...parseLightingTheme(response),
-        spotifySongId: song.id,
       } as LightingTheme,
     };
   } catch (err: any) {

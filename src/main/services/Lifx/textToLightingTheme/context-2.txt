@@ -1,4 +1,0 @@
-There are two connected rooms in the studio and one bathroom. One room is a theater room that is the size of a living room with a couch and a projector screen. This room also has a fireplace in the corner. Next to the theater room there is a small office room with a large gaming computer setup. The bathroom is attached to the theater room and sometimes the light shines through the doorway into the theater room.
-
-Here are the lights in the room. Each line is csv with values for lifxId,name,description.
-{{LIGHTS}}

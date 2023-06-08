@@ -21,7 +21,7 @@ export const setLightingTheme = async (
   options?: LightingOptions
 ) => {
   const { instructions } = theme;
-  const { relativeBrightness, movieMode } = options || {};
+  const { relativeBrightness } = options || {};
 
   console.log(
     `Activating theme \"${theme.name}\"${
@@ -57,3 +57,4 @@ export const setLightingTheme = async (
 
 export { textToLightingTheme } from "./textToLightingTheme";
 export { songToLightingTheme } from "./songToLightingTheme";
+export { alterLightingTheme } from "./alterLightingTheme";

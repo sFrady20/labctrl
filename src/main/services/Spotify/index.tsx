@@ -29,7 +29,7 @@ const refreshToken = async () => {
   spotify.defaults.headers.common.Authorization = `Bearer ${token}`;
   console.log("Spotify token refreshed");
 };
-setInterval(refreshToken, 60 * 60 * 1000 /* 1 hour */);
+setInterval(refreshToken, 30 * 60 * 1000 /* 30 mins */);
 refreshToken();
 
 export async function getCurrentSpotifySong() {
