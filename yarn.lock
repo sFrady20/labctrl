@@ -2676,16 +2676,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:^25.0.0":
-  version: 25.0.1
-  resolution: "electron@npm:25.0.1"
+"electron@https://github.com/castlabs/electron-releases#v25.0.0+wvcus":
+  version: 25.0.0+wvcus
+  resolution: "electron@https://github.com/castlabs/electron-releases.git#commit=d936eb0274c8d0910cba2989139e882430934e24"
   dependencies:
     "@electron/get": ^2.0.0
     "@types/node": ^18.11.18
     extract-zip: ^2.0.1
   bin:
     electron: cli.js
-  checksum: ddf72cfe1fca113bd99649df0b9df23fc939eeeb72cb3939e2e5a2ee613789e39d511f083fd42ad9da8adc4ed2dbc6ab75d0af58a51db376d1d2b89e1da6d9b4
+  checksum: fc09a6ecd0b3ed5de1cc9a08e9496663cff0772118ad9450b47d09aa1565ecfd77bbe56d70b0a7df50782a9cf306c3a9d2fffe8b8537b88a13c665e906408bdd
   languageName: node
   linkType: hard
 
@@ -3738,7 +3738,7 @@ __metadata:
     clsx: ^1.2.1
     color: ^4.2.3
     cron-schedule: ^4.0.0
-    electron: ^25.0.0
+    electron: "https://github.com/castlabs/electron-releases#v25.0.0+wvcus"
     electron-builder: ^23.6.0
     electron-updater: ^5.3.0
     electron-vite: ^1.0.22

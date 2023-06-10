@@ -9,6 +9,7 @@ const spotify = axios.create({
   baseURL: "https://api.spotify.com/v1",
 });
 
+let accessToken: string = "";
 const refreshToken = async () => {
   const token = (
     await axios.post(
@@ -26,6 +27,7 @@ const refreshToken = async () => {
       }
     )
   ).data?.access_token;
+  accessToken = token;
   spotify.defaults.headers.common.Authorization = `Bearer ${token}`;
   console.log("Spotify token refreshed");
 };
@@ -59,4 +61,8 @@ export async function toggleSongPlayingOnSpotify(to?: boolean) {
 
 export async function skipToNextSongOnSpotify() {
   await spotify.post("/me/player/next");
+}
+
+export async function getSpotifyAccessToken() {
+  return accessToken;
 }

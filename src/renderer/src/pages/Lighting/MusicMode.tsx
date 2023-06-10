@@ -10,6 +10,45 @@ type CronScheduleTimer = ReturnType<(typeof scheduler)["setInterval"]>;
 
 const musicModeCron = parseCronExpression("*/15 * * * * *");
 
+//@ts-ignore
+window.onSpotifyWebPlaybackSDKReady = () => {
+  //@ts-ignore
+  const player = new Spotify.Player({
+    name: "labctrl",
+    getOAuthToken: async (cb) => {
+      cb(await window.main.invoke("getSpotifyAccessToken"));
+    },
+    volume: 0.5,
+  });
+
+  player.addListener("ready", ({ device_id }) => {
+    console.log("Spotify ready with Device ID", device_id);
+  });
+
+  player.addListener("not_ready", ({ device_id }) => {
+    console.log("Device ID has gone offline", device_id);
+  });
+
+  player.addListener("initialization_error", ({ message }) => {
+    console.error(`Spotify initialization_error:`, message);
+  });
+
+  player.addListener("authentication_error", ({ message }) => {
+    console.error(`Spotify authentication_error:`, message);
+  });
+
+  player.addListener("account_error", ({ message }) => {
+    console.error(`Spotify account_error:`, message);
+  });
+
+  player.addListener("player_state_changed", ({ message }) => {
+    console.error(`Spotify account_error: ${message}`);
+  });
+
+  player.connect();
+  useMusicMode.setState({ spotifyPlayer: player });
+};
+
 export const useMusicMode = create<{
   isBusy: boolean;
   isActive: boolean;
@@ -17,11 +56,13 @@ export const useMusicMode = create<{
   playing?: Song;
   activate: (onSuccess: (theme: LightingTheme) => void) => void;
   deactivate: () => void;
+  spotifyPlayer: any;
 }>((set, get) => ({
   isBusy: false,
   isActive: false,
   interval: undefined,
   playing: undefined,
+  spotifyPlayer: undefined,
   activate: (onSuccess) => {
     set({
       isActive: true,
@@ -46,7 +87,7 @@ export const useMusicMode = create<{
 
           onSuccess(result.theme);
         } catch (err: any) {
-          console.log(err.meessage);
+          console.error(err.meessage);
         } finally {
           set({ isBusy: false });
         }
@@ -100,11 +141,9 @@ export function MusicMode(props: {}) {
         <div className="space-x-1 flex">
           <div
             className="w-8 h-8 hover:bg-gray-800 rounded-md flex items-center justify-center cursor-pointer"
-            onClick={() => {
-              window.main.invoke(
-                "toggleSongPlayingOnSpotify",
-                !musicMode.playing
-              );
+            onClick={async () => {
+              console.log(await musicMode.spotifyPlayer.getCurrentState());
+              musicMode.spotifyPlayer.togglePlay();
             }}
           >
             <div className={musicMode.playing ? "i-bx-pause" : "i-bx-play"} />

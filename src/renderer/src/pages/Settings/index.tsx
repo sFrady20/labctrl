@@ -1,4 +1,4 @@
-import { useNavigate, useNavigation } from "react-router";
+import { useNavigate } from "react-router";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
