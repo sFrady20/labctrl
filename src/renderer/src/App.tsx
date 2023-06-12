@@ -2,6 +2,7 @@ import { RouterProvider, createHashRouter, redirect } from "react-router-dom";
 import DefaultLayout from "./layouts/Default";
 import LightingPage from "./pages/Lighting";
 import SettingsPage from "./pages/Settings";
+import WorkoutPage from "./pages/Workout";
 import { TasksPage } from "./pages/Tasks";
 
 const router = createHashRouter([
@@ -18,6 +19,7 @@ const router = createHashRouter([
       },
       { path: "/tasks", Component: TasksPage },
       { path: "/lighting", Component: LightingPage },
+      { path: "/workout", Component: WorkoutPage },
       { path: "/settings", Component: SettingsPage },
     ],
   },

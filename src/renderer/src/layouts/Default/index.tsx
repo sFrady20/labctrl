@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
 import useCronSchedule from "@renderer/util/useSchedule";
 import clsx from "clsx";
+import { WorkoutWidget } from "@renderer/pages/Workout";
 
 export default function DefaultLayout() {
   const [time, setTime] = useState(DateTime.now());
@@ -17,33 +18,26 @@ export default function DefaultLayout() {
     <div className="flex-1 flex flex-col w-full">
       <div className="mx-2 h-11 flex items-center bg-black rounded-b-lg px-2 space-x-3">
         <div className="flex flex-row rounded-lg overflow-hidden">
-          <div
-            className={clsx(
-              "w-8 h-8 hover:bg-gray-900 cursor-pointer flex items-center justify-center",
-              {
-                "bg-gray-800 hover:bg-gray-800": location.pathname === "/tasks",
-              }
-            )}
-            onClick={() => {
-              navigate("/tasks");
-            }}
-          >
-            <div className="i-bx-task text-[18px]" />
-          </div>
-          <div
-            className={clsx(
-              "w-8 h-8 hover:bg-gray-900 cursor-pointer flex items-center justify-center",
-              {
-                "bg-gray-800 hover:bg-gray-800":
-                  location.pathname === "/lighting",
-              }
-            )}
-            onClick={() => {
-              navigate("/lighting");
-            }}
-          >
-            <div className="i-bx-bulb text-[18px]" />
-          </div>
+          {[
+            { icon: "i-bx-bulb", path: "/lighting" },
+            { icon: "i-bx-task", path: "/tasks" },
+            { icon: "i-bx-dumbbell", path: "/workout" },
+          ].map(({ icon, path }, i) => (
+            <div
+              key={i}
+              className={clsx(
+                "w-8 h-8 hover:bg-gray-900 cursor-pointer flex items-center justify-center",
+                {
+                  "bg-gray-800 hover:bg-gray-800": location.pathname === path,
+                }
+              )}
+              onClick={() => {
+                navigate(path);
+              }}
+            >
+              <div className={clsx("text-[18px]", icon)} />
+            </div>
+          ))}
         </div>
         <div className="flex-1 text-sm font-semibold">
           {time.toFormat("cccc, LLLL d • hh:mm a")}
@@ -58,6 +52,7 @@ export default function DefaultLayout() {
         </div>
       </div>
       <Outlet />
+      <WorkoutWidget />
     </div>
   );
 }

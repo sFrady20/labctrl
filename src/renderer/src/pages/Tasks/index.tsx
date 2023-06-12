@@ -7,7 +7,6 @@ import styles from "./tasks.module.css";
 type Task = {
   id: string;
   message: string;
-  status?: "complete" | "discarded";
 };
 
 const useTasks = create(
@@ -69,11 +68,11 @@ function ListedTask(props: { task: Task; list: string }) {
   const { task, list } = props;
 
   return (
-    <div className="task p-1 bg-gray-900 flex flex-row items-start space-x-3 cursor-pointer rounded-lg">
+    <div className="task p-1 bg-gray-900 flex flex-row items-start space-x-3 cursor-move rounded-lg">
       <div
-        className="p-2 rounded-lg hover:bg-gray-800"
+        className="p-2 rounded-lg hover:bg-gray-800 cursor-pointer"
         onClick={() => {
-          task.status === "complete"
+          list === "completed"
             ? tasks.moveTask(task.id, "completed", "default")
             : tasks.moveTask(task.id, "default", "completed");
         }}
