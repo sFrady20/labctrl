@@ -10,7 +10,8 @@ import { DateTime } from "luxon";
 
 type Workout = {
   id: string;
-  status: "prompting" | "active" | "completed";
+  status: "prompting" | "active" | "completed" | "error";
+  error?: string;
   content?: string;
 };
 
@@ -22,13 +23,14 @@ const useWorkout = create(
     completeWorkout: (id: string) => void;
     giveUp: (id: string) => void;
     deactivate: () => void;
+    clearPending: () => void;
   }>(
     (set, get) => ({
       queue: [],
       createWorkout: async () => {
         console.log("Prompting workout");
+        const id = Math.random().toString(32).substring(7);
         try {
-          const id = Math.random().toString(32).substring(7);
           set((x) => ({
             ...x,
             queue: [
@@ -49,7 +51,8 @@ const useWorkout = create(
                   .replace(
                     "{{PREVIOUS_WORKOUTS}}",
                     get()
-                      .queue.slice(1, 3)
+                      .queue.filter((x) => x.status === "completed")
+                      .slice(0, 3)
                       .map((x) => `\`\`\`${x.content}\`\`\``)
                       .join("\n")
                   )
@@ -63,8 +66,14 @@ const useWorkout = create(
               x.id === id ? { ...x, status: "active", content: result } : x
             ),
           }));
-        } catch (err) {
+        } catch (err: any) {
           console.error(err);
+          set((x) => ({
+            ...x,
+            queue: x.queue.map((x) =>
+              x.id === id ? { ...x, status: "error", error: err.message } : x
+            ),
+          }));
         }
       },
       completeWorkout: (id: string) => {
@@ -91,12 +100,19 @@ const useWorkout = create(
         const activeInterval = get().interval;
         if (activeInterval) scheduler.clearTimeoutOrInterval(get().interval);
       },
+      clearPending: () => {
+        set((x) => ({
+          ...x,
+          queue: x.queue.filter((x) => x.status !== "prompting"),
+        }));
+      },
     }),
     {
       name: "workout-store",
     }
   )
 );
+useWorkout.getState().clearPending();
 import.meta.hot?.on("vite:beforeUpdate", () => {
   useWorkout.getState().deactivate();
 });
@@ -147,8 +163,11 @@ export default function WorkoutPage() {
         </div>
       </div>
       {workouts.queue.slice(0, 15).map((workout) =>
-        workout.status === "prompting" ? (
-          <div className="bg-gray-800 p-2 items-center rounded-lg flex flex-row space-x-3">
+        workout.status === "error" ? null : workout.status === "prompting" ? (
+          <div
+            key={workout.id}
+            className="bg-gray-800 p-2 items-center rounded-lg flex flex-row space-x-3"
+          >
             <div className="flex-1 px-2">Generating workout...</div>
             <div className="i-svg-spinners-3-dots-fade px-4 text-xl" />
           </div>
