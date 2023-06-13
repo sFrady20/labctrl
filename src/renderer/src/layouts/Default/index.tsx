@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
 import useCronSchedule from "@renderer/util/useSchedule";
 import clsx from "clsx";
-import { WorkoutWidget } from "@renderer/pages/Workout";
+import { TrainingWidget } from "@renderer/pages/Training";
 
 export default function DefaultLayout() {
   const [time, setTime] = useState(DateTime.now());
@@ -21,7 +21,7 @@ export default function DefaultLayout() {
           {[
             { icon: "i-bx-bulb", path: "/lighting" },
             { icon: "i-bx-task", path: "/tasks" },
-            { icon: "i-bx-dumbbell", path: "/workout" },
+            { icon: "i-bx-dumbbell", path: "/training" },
           ].map(({ icon, path }, i) => (
             <div
               key={i}
@@ -52,7 +52,7 @@ export default function DefaultLayout() {
         </div>
       </div>
       <Outlet />
-      <WorkoutWidget />
+      <TrainingWidget />
     </div>
   );
 }

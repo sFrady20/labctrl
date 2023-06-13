@@ -3420,6 +3420,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"immer@npm:^10.0.2":
+  version: 10.0.2
+  resolution: "immer@npm:10.0.2"
+  checksum: 525a3b14210d02ae420c3b9f6ca14f7e9bcf625611d1356e773e7739f14c7c8de50dac442e6c7de3a6e24a782f7b792b6b8666bc0b3f00269d21a95f8f68ca84
+  languageName: node
+  linkType: hard
+
 "imurmurhash@npm:^0.1.4":
   version: 0.1.4
   resolution: "imurmurhash@npm:0.1.4"
@@ -3742,6 +3749,7 @@ __metadata:
     electron-builder: ^23.6.0
     electron-updater: ^5.3.0
     electron-vite: ^1.0.22
+    immer: ^10.0.2
     lifx-lan-client: ^2.1.0
     lodash: ^4.17.21
     luxon: ^3.3.0

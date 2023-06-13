@@ -1,0 +1,22 @@
+Create a plan for: 
+{{CURRENT_TIME}}
+
+Create a program in the following format. Replace the bracketed text with thought out information that completes the program.
+```
+== Meditation ==
+[brief message]
+
+== Workout ==
+[Name of exercise] - [reps per set]/[# of sets] - [time to rest in between sets (00:00)] - [Time to rest after exercise (00:00)]
+[Name of exercise] - [reps per set]/[# of sets] - [time to rest in between sets (00:00)] - [Time to rest after exercise (00:00)]
+[...repeat for total workout]
+
+== Nutrition ==
+[name of restaurant]:[meal]
+
+== Learning ==
+[information or technical details]
+```
+
+Here are the latest previous programs. Tailor the program to be a continuation. Explore different ideas to create balance from one program to the next.
+{{PREVIOUS_PROGRAMS}}

@@ -15,14 +15,7 @@ export async function songToLightingTheme(song: Song) {
         song.images.map(async (x) => await Vibrant.from(x).getPalette())
       )
     )
-      .flatMap((x) => [
-        x.Vibrant?.hex,
-        x.Muted?.hex,
-        x.LightVibrant?.hex,
-        x.LightMuted?.hex,
-        x.DarkVibrant?.hex,
-        x.LightVibrant?.hex,
-      ])
+      .flatMap((x) => [x.Vibrant?.hex, x.LightVibrant?.hex, x.DarkVibrant?.hex])
       .filter((x) => x !== undefined);
 
     console.log(`Prompting song to lighting theme for song "${song.title}"`);

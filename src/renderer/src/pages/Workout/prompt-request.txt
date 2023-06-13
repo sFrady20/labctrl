@@ -1,7 +1,0 @@
-My goal is to build muscle and gain weight. Make me 1 quick workout involving only a set of dumbbells and bodyweight. Use the previous workouts to target various muscle groups and create a balanced workout routine. For context, I will be asking for 4 different workouts at different times throughout the day. You should respond with only one of these workouts.
-
-The previous workouts were as follows:
-{{PREVIOUS_WORKOUTS}}
-
-The current time is:
-{{CURRENT_TIME}}
