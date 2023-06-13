@@ -224,7 +224,13 @@ export function TrainingWidget() {
       </div>
     );
 
-  if (workout.queue.some((x) => x.status === "active"))
+  if (
+    workout.queue.some(
+      (x) =>
+        x.status === "active" &&
+        x.workout?.exercises.some((x) => x.completedSets < x.sets)
+    )
+  )
     return (
       <div className="fixed left-3 bottom-3 right-3 bg-red-900 p-2 items-center rounded-lg flex flex-row space-x-3">
         <div className="flex-1 px-2 font-bold">Training time!</div>
