@@ -3,10 +3,28 @@ import { persist } from "zustand/middleware";
 import { ReactSortable } from "react-sortablejs";
 import clsx from "clsx";
 import styles from "./tasks.module.css";
+import { produce } from "immer";
+
+const colors = [
+  "gray",
+  "red",
+  "orange",
+  "yellow",
+  "lime",
+  "green",
+  "teal",
+  "blue",
+  "purple",
+] as const;
+
+//just so uno compiles them
+const _classes =
+  "bg-gray-900 hover:bg-gray-800 bg-red-900 hover:bg-red-800 bg-orange-900 hover:bg-orange-800 bg-yellow-900 hover:bg-yellow-800 bg-lime-900 hover:bg-lime-800 bg-green-900 hover:bg-green-800 bg-teal-900 hover:bg-teal-800 bg-blue-900 hover:bg-blue-800 bg-purple-900 hover:bg-purple-800";
 
 type Task = {
   id: string;
   message: string;
+  color?: (typeof colors)[number];
 };
 
 const useTasks = create(
@@ -18,6 +36,7 @@ const useTasks = create(
     lists: { [key: string]: Task[] | undefined };
     addTask: (message: string, list?: string) => Task;
     moveTask: (id: string, fromList: string, toList: string) => void;
+    editTask: (id: string, list: string, editor: (task: Task) => void) => void;
     setTasks: (list: string, tasks: Task[]) => void;
   }>(
     (set, get) => ({
@@ -30,6 +49,7 @@ const useTasks = create(
         const task: Task = {
           id: Math.random().toString(32).substring(7),
           message,
+          color: "gray",
         };
         set((x) => ({
           ...x,
@@ -55,6 +75,16 @@ const useTasks = create(
           },
         }));
       },
+      editTask: (taskId, list, editor) => {
+        set((x) =>
+          produce(x, (x) => {
+            let task = (x.lists[list] || []).find((x) => x.id === taskId);
+            if (!task) return x;
+            editor(task);
+            return x;
+          })
+        );
+      },
       setTasks: (list, tasks: Task[]) => {
         set((x) => ({ ...x, lists: { ...(x.lists || {}), [list]: tasks } }));
       },
@@ -68,9 +98,15 @@ function ListedTask(props: { task: Task; list: string }) {
   const { task, list } = props;
 
   return (
-    <div className="task p-1 bg-gray-900 flex flex-row items-start space-x-3 cursor-move rounded-lg">
+    <div
+      className={`task p-1 bg-${
+        task.color || "gray"
+      }-900 flex flex-row items-start space-x-3 cursor-move rounded-lg group`}
+    >
       <div
-        className="p-2 rounded-lg hover:bg-gray-800 cursor-pointer"
+        className={`p-2 rounded-lg hover:bg-${
+          task.color || "gray"
+        }-800 cursor-pointer`}
         onClick={() => {
           list === "completed"
             ? tasks.moveTask(task.id, "completed", "default")
@@ -86,11 +122,29 @@ function ListedTask(props: { task: Task; list: string }) {
         />
       </div>
       <div
-        className={clsx("text-sm py-[6px]", {
+        className={clsx("text-sm py-[6px] flex-1", {
           "opacity-20": list === "completed" || list === "discarded",
         })}
       >
         {task.message}
+      </div>
+      <div
+        className={`p-2 rounded-lg hover:bg-${
+          task.color || "gray"
+        }-800 cursor-pointer hidden group-hover:flex`}
+        onClick={() => {
+          tasks.editTask(
+            task.id,
+            list,
+            (x) =>
+              (x.color =
+                colors[
+                  (colors.indexOf(task.color || "gray") + 1) % colors.length
+                ])
+          );
+        }}
+      >
+        <div className={clsx("p-1 i-bx-palette")} />
       </div>
     </div>
   );
