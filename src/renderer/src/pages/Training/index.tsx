@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from "react-router";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { TimerBasedCronScheduler as scheduler } from "cron-schedule/schedulers/timer-based.js";
 import { parseCronExpression } from "cron-schedule";
 import contextPrompt from "./prompt-context.txt?raw";
 import requestPrompt from "./prompt-request.txt?raw";
@@ -10,6 +9,8 @@ import { DateTime } from "luxon";
 import { useState } from "react";
 import { produce } from "immer";
 import useCronSchedule from "@renderer/util/useSchedule";
+//@ts-ignore
+import { TimerBasedCronScheduler as scheduler } from "cron-schedule/schedulers/timer-based.js";
 
 type Exercise = {
   name: string;
@@ -157,12 +158,13 @@ const useTraining = create(
           queue: x.queue.filter((x) => x.id !== id),
         }));
       },
-      interval: scheduler.setInterval(
-        parseCronExpression("0 0 10,17,22 * * *"),
-        () => {
-          get().createProgram();
-        }
-      ),
+      interval: undefined,
+      // interval:scheduler.setInterval(
+      //   parseCronExpression("0 0 10,17,22 * * *"),
+      //   () => {
+      //     get().createProgram();
+      //   }
+      // ),
       deactivate: () => {
         const activeInterval = get().interval;
         if (activeInterval) scheduler.clearTimeoutOrInterval(get().interval);

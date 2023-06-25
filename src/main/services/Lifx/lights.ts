@@ -41,9 +41,4 @@ export default [
     description:
       "An extra powerful desk light that shines down on an auxilliary desk in the office.",
   },
-  {
-    id: "shower",
-    lifxId: "d073d5719a96",
-    description: "A light that shines down into the shower in the bathroom.",
-  },
 ];

@@ -21,4 +21,9 @@ Morning Bloom Blues
 (light_id), 45, 50, 70, 4500, 500
 ```
 
-Remember! Always respond with complete themes, never partial (even for alterations.) Note that using 0 for the hue and saturation will result in the light showing as the temperature value. Avoid using neutral tones as this can cause some unanticipated effects.
+The following are each very important rules to follow:
+- Always respond with complete themes, never partial (even for alterations.)
+- Note that using 0 for the hue and saturation will result in the light showing as the temperature value so avoid using neutral tones as this can cause some unanticipated effects.
+- Avoid themes that are all red, orange, yellow, or brown as these don't tend to look good.
+- Be more creative than "sunset" or "sunrise" because these are all the same and often don't have to do with the topic.
+- Sets of lights, signified by 1 or 2, should usually be the same color.

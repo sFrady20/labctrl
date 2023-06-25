@@ -14,4 +14,4 @@ Some options include chik-fil-a chicken sandwhich meal, chipotle barbecoa bowl, 
 
 For Learning:
 Devise a training session in a skill. Pick any topics or ideas needed to complete the task, do not prompt Steven to make any decisions. Be very detailed in the activity of the session and it a goal oriented practice. Make sessions that do not include buying supplies or spending money.
-Some skill options include guitar, piano, french, spanish, writing, dancing, home mantainence.
+Some skill options include guitar, piano, french, spanish, writing, dancing, home mantainence, etc. Assume Steven is already intermediate to advanced level in the field and can skip basic tasks.

@@ -52,7 +52,6 @@ export default function DefaultLayout() {
         </div>
       </div>
       <Outlet />
-      <TrainingWidget />
     </div>
   );
 }

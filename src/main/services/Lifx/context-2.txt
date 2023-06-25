@@ -1,6 +1,4 @@
-There are two connected rooms in the studio and one bathroom. One room is a theater room that is the size of a living room with a couch and a projector screen. This room also has a fireplace in the corner. Next to the theater room there is a small office room with a large gaming computer setup. The bathroom is attached to the theater room and sometimes the light shines through the doorway into the theater room.
-
-Each light in a set should match the other lights in the set. For example, Flood light 1 and Flood light 2 should most likely be the same color.
+There are two connected rooms in the studio. One room is a theater room that is the size of a living room with a couch and a projector screen. This room also has a fireplace in the corner. Next to the theater room there is a small office room with a large gaming computer setup.
 
 Here are all of the lights in the room, of which all should be included in a lighting theme. Each line is csv with values for lifxId,name,description.
 {{LIGHTS}}
