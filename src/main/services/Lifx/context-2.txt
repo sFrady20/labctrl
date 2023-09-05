@@ -1,4 +1,4 @@
-There are two connected rooms in the studio. One room is a theater room that is the size of a living room with a couch and a projector screen. This room also has a fireplace in the corner. Next to the theater room there is a small office room with a large gaming computer setup.
+There are three connected rooms in the studio. One room is a theater room that is the size of a living room with a couch and a projector screen. This room also has a fireplace in the corner. Next to the theater room there is a small office room with a large gaming computer setup. There is also a bathroom on the side of the theater room, from which sometimes the light shines through to the theater room.
 
 Here are all of the lights in the room, of which all should be included in a lighting theme. Each line is csv with values for lifxId,name,description.
 {{LIGHTS}}
