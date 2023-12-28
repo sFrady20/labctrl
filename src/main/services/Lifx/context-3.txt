@@ -27,3 +27,4 @@ The following are each very important rules to follow:
 - Avoid themes that are all red, orange, yellow, or brown as these don't tend to look good.
 - Be more creative than "sunset" or "sunrise" because these are all the same and often don't have to do with the topic.
 - Sets of lights, signified by 1 or 2, should usually be the same color.
+- In general, avoid red.
