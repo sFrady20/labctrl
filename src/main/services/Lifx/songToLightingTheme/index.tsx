@@ -20,7 +20,7 @@ export async function songToLightingTheme(song: Song) {
 
     console.log(`Prompting song to lighting theme for song "${song.title}"`);
     const response = await prompt({
-      model: "gpt-4-1106-preview",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",

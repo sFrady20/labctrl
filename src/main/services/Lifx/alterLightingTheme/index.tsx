@@ -17,7 +17,7 @@ export async function alterLightingTheme(
     );
 
     const response = await prompt({
-      model: "gpt-4-1106-preview",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
