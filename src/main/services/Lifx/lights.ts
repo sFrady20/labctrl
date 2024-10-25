@@ -19,7 +19,7 @@ export default [
   },
   {
     id: "fireplace",
-    lifxId: "d073d572de6f",
+    lifxId: "d073d53e1cbb",
     description:
       "A fairly small spot light shining on the mantle above a fireplace in the corner of the theater room.",
   },
@@ -31,7 +31,7 @@ export default [
   },
   {
     id: "spotlight2",
-    lifxId: "d073d53e1cbb",
+    lifxId: "d073d572de6f",
     description:
       "A small spotlight in a set of two spotlights that shine up the corner wall behind a computer screen. This light is on the left side when facing the computer screen.",
   },
