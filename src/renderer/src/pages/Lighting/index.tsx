@@ -2,11 +2,13 @@ import clsx from "clsx";
 import Color from "color";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useAsync } from "react-async-hook";
-import type { LightingTheme } from "@main/services/Lifx/types";
+import type { LightingTheme, AnimatedPalette } from "@main/services/lifx/types";
 import { MusicMode } from "./MusicMode";
 import { useNavigate } from "react-router";
 import { ReactSortable } from "react-sortablejs";
 import { useLighting, useMusicMode, useScenes } from "@renderer/stores";
+import { AnimatedPaletteEditor } from "@renderer/components/lighting";
+import { Collapsible } from "@renderer/components/ui";
 
 function PasteButton(props: { onPaste?: (theme: LightingTheme) => void }) {
   const { onPaste } = props;
@@ -82,6 +84,7 @@ function FavoriteButton(props: { isFavorite?: boolean; onToggle: () => void }) {
 
 export default function LightingPage() {
   const [topic, setTopic] = useState("");
+  const [showAnimationEditor, setShowAnimationEditor] = useState(false);
 
   const lighting = useLighting();
   const musicMode = useMusicMode();
@@ -177,6 +180,24 @@ export default function LightingPage() {
           <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
             <PasteButton onPaste={(t) => lighting.addTheme(t, "imported")} />
           </div>
+          <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
+            <button
+              className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
+              onClick={() => setShowAnimationEditor(true)}
+              title="Create animated palette"
+            >
+              <div className="i-bx-movie-play" />
+            </button>
+            {lighting.isAnimating && (
+              <button
+                className="b-none px-4 h-10 cursor-pointer bg-orange-900 hover:bg-orange-800 font-semibold flex items-center justify-center space-x-2"
+                onClick={() => lighting.stopAnimation()}
+                title="Stop animation"
+              >
+                <div className="i-bx-stop" />
+              </button>
+            )}
+          </div>
           <input
             type="range"
             className="flex-1"
@@ -198,47 +219,71 @@ export default function LightingPage() {
           </div>
         </div>
 
-        <div className="flex flex-col b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
-          <textarea
-            placeholder="Write in a topic to generate or an alteration to the current theme..."
-            disabled={generate.loading || alter.loading}
-            className="p-4 b-none rounded-t-lg bg-gray-800 text-[#eee] text-sm disabled:opacity-60"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-          />
-          <div className="flex flex-row">
-            <button
-              className="flex-1 h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center disabled:opacity-60 disabled:hover-bg-gray-900 disabled:cursor-default"
+        <Collapsible
+          title="AI Generate"
+          icon="i-bx-magic-wand"
+          defaultOpen={false}
+          badge={
+            (generate.loading || alter.loading) && (
+              <div className="i-svg-spinners-3-dots-fade text-blue-500" />
+            )
+          }
+        >
+          <div className="flex flex-col">
+            <textarea
+              placeholder="Write in a topic to generate or an alteration to the current theme..."
               disabled={generate.loading || alter.loading}
-              onClick={async () => {
-                generate.execute(topic);
-              }}
-            >
-              {generate.loading ? (
-                <div className="i-svg-spinners-3-dots-fade" />
-              ) : (
-                "Generate"
-              )}
-            </button>
-            <button
-              className="flex-1 h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center disabled:opacity-60 disabled:hover-bg-gray-900 disabled:cursor-default"
-              disabled={
-                generate.loading || alter.loading || !lighting.activeTheme
-              }
-              onClick={async () => {
-                alter.execute(lighting.activeTheme, topic);
-              }}
-            >
-              {alter.loading ? (
-                <div className="i-svg-spinners-3-dots-fade" />
-              ) : (
-                "Alter"
-              )}
-            </button>
+              className="p-4 b-none bg-gray-800 text-[#eee] text-sm disabled:opacity-60 min-h-16"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+            />
+            <div className="flex flex-row">
+              <button
+                className="flex-1 h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center disabled:opacity-60 disabled:hover-bg-gray-900 disabled:cursor-default"
+                disabled={generate.loading || alter.loading}
+                onClick={async () => {
+                  generate.execute(topic);
+                }}
+              >
+                {generate.loading ? (
+                  <div className="i-svg-spinners-3-dots-fade" />
+                ) : (
+                  "Generate"
+                )}
+              </button>
+              <button
+                className="flex-1 h-10 cursor-pointer bg-gray-900 font-semibold hover:bg-gray-800 flex items-center justify-center disabled:opacity-60 disabled:hover-bg-gray-900 disabled:cursor-default"
+                disabled={
+                  generate.loading || alter.loading || !lighting.activeTheme
+                }
+                onClick={async () => {
+                  alter.execute(lighting.activeTheme, topic);
+                }}
+              >
+                {alter.loading ? (
+                  <div className="i-svg-spinners-3-dots-fade" />
+                ) : (
+                  "Alter"
+                )}
+              </button>
+            </div>
           </div>
-        </div>
+        </Collapsible>
 
-        <MusicMode />
+        <Collapsible
+          title="Music Mode"
+          icon="i-bx-bxl-spotify"
+          defaultOpen={true}
+          badge={
+            musicMode.isActive && (
+              <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-500 rounded-full">
+                Active
+              </span>
+            )
+          }
+        >
+          <MusicMode />
+        </Collapsible>
 
         {/* Quick Scene Buttons */}
         {scenes.scenes.length > 0 && (
@@ -341,7 +386,12 @@ export default function LightingPage() {
         animation={150}
         disabled={!!lighting.searchQuery || !!lighting.selectedCategory || lighting.showFavoritesOnly}
       >
-        {filteredThemes.map((theme) => (
+        {filteredThemes.map((theme) => {
+          const isAnimated = "type" in theme && (theme as AnimatedPalette).type === "animated";
+          const isActive = lighting.activeTheme?.id === theme.id;
+          const isCurrentlyAnimating = isActive && lighting.isAnimating;
+
+          return (
           <div
             key={theme.id}
             className="flex justify-between items-center rounded-lg px-2 h-11 space-x-3 hover:bg-gray-900 cursor-pointer group"
@@ -350,11 +400,23 @@ export default function LightingPage() {
               musicMode.deactivate(false);
             }}
           >
-            {lighting.activeTheme?.id === theme.id && (
-              <div className="i-bx-bxs-check-circle text-green-500" />
+            {isActive && (
+              <div className={clsx(
+                isCurrentlyAnimating
+                  ? "i-bx-loader-alt animate-spin text-blue-500"
+                  : "i-bx-bxs-check-circle text-green-500"
+              )} />
+            )}
+            {isAnimated && !isActive && (
+              <div className="i-bx-movie-play text-purple-500" title="Animated" />
             )}
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">{theme.name}</div>
+              <div className="text-sm font-medium truncate">
+                {theme.name}
+                {isAnimated && (
+                  <span className="ml-2 text-xs text-purple-400">Animated</span>
+                )}
+              </div>
               {theme.category && (
                 <div className="text-xs text-gray-500">{theme.category}</div>
               )}
@@ -390,7 +452,8 @@ export default function LightingPage() {
               </button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </ReactSortable>
 
       {/* Empty state */}
@@ -403,6 +466,18 @@ export default function LightingPage() {
               : "No palettes yet. Generate one above!"}
           </div>
         </div>
+      )}
+
+      {/* Animation Editor Modal */}
+      {showAnimationEditor && (
+        <AnimatedPaletteEditor
+          baseTheme={lighting.activeTheme}
+          onSave={(palette) => {
+            lighting.addTheme(palette, "manual");
+            setShowAnimationEditor(false);
+          }}
+          onCancel={() => setShowAnimationEditor(false)}
+        />
       )}
     </div>
   );

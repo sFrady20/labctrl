@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Song } from "@main/services/Lifx/types";
+import type { Song } from "@main/services/lifx/types";
 import { TimerBasedCronScheduler as scheduler } from "cron-schedule/schedulers/timer-based.js";
 import { parseCronExpression } from "cron-schedule";
 import { useLighting } from "./lighting";

@@ -5,7 +5,10 @@
       "Bash(bun run build:*)",
       "Bash(bun install:*)",
       "Bash(bun add:*)",
-      "Bash(bun remove:*)"
+      "Bash(bun remove:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)"
     ]
   }
 }

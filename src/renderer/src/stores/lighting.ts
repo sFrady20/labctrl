@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import debounce from "lodash/debounce";
-import type { LightingTheme, ThemeSource, AnimatedPalette } from "@main/services/Lifx/types";
+import type { LightingTheme, ThemeSource, AnimatedPalette } from "@main/services/lifx/types";
 
 const debouncedSetLightingTheme = debounce(
   (theme: LightingTheme, relativeBrightness?: number) => {
@@ -19,6 +19,11 @@ type LightingStore = {
   previousTheme?: LightingTheme;
   activateTheme: (theme: LightingTheme, savePrevious?: boolean) => void;
   restorePreviousTheme: () => void;
+
+  // Animation
+  isAnimating: boolean;
+  startAnimation: (palette: AnimatedPalette) => void;
+  stopAnimation: () => void;
 
   // Themes library
   themes: LightingTheme[];
@@ -52,19 +57,44 @@ export const useLighting = create(
       activeTheme: undefined,
       previousTheme: undefined,
       activateTheme: (theme, savePrevious = false) => {
+        // Stop any running animation first
+        if (get().isAnimating) {
+          window.main.invoke("stopAnimation");
+          set({ isAnimating: false });
+        }
+
         const current = get().activeTheme;
-        window.main.invoke("setLightingTheme", theme, {
-          relativeBrightness: get().relativeBrightness,
-        });
-        set((state) => ({
-          ...state,
-          activeTheme: theme,
-          previousTheme: savePrevious ? current : state.previousTheme,
-        }));
+
+        // Check if this is an animated palette
+        if ("type" in theme && (theme as AnimatedPalette).type === "animated") {
+          const animated = theme as AnimatedPalette;
+          window.main.invoke("startAnimation", animated, get().relativeBrightness);
+          set((state) => ({
+            ...state,
+            activeTheme: theme,
+            previousTheme: savePrevious ? current : state.previousTheme,
+            isAnimating: true,
+          }));
+        } else {
+          window.main.invoke("setLightingTheme", theme, {
+            relativeBrightness: get().relativeBrightness,
+          });
+          set((state) => ({
+            ...state,
+            activeTheme: theme,
+            previousTheme: savePrevious ? current : state.previousTheme,
+          }));
+        }
       },
       restorePreviousTheme: () => {
         const prev = get().previousTheme;
         if (prev) {
+          // Stop any running animation first
+          if (get().isAnimating) {
+            window.main.invoke("stopAnimation");
+            set({ isAnimating: false });
+          }
+
           window.main.invoke("setLightingTheme", prev, {
             relativeBrightness: get().relativeBrightness,
           });
@@ -74,6 +104,21 @@ export const useLighting = create(
             previousTheme: undefined,
           }));
         }
+      },
+
+      // Animation
+      isAnimating: false,
+      startAnimation: (palette) => {
+        window.main.invoke("startAnimation", palette, get().relativeBrightness);
+        set((state) => ({
+          ...state,
+          activeTheme: palette,
+          isAnimating: true,
+        }));
+      },
+      stopAnimation: () => {
+        window.main.invoke("stopAnimation");
+        set({ isAnimating: false });
       },
 
       // Themes library
@@ -132,7 +177,13 @@ export const useLighting = create(
         set((state) => ({ ...state, relativeBrightness: value }));
         const activeTheme = get().activeTheme;
         if (!activeTheme) return;
-        debouncedSetLightingTheme(activeTheme, value);
+
+        // Update animation brightness if animating
+        if (get().isAnimating) {
+          window.main.invoke("setAnimationBrightness", value);
+        } else {
+          debouncedSetLightingTheme(activeTheme, value);
+        }
       },
 
       // Computed helpers

@@ -3,11 +3,15 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { DateTime } from "luxon";
 import useCronSchedule from "@renderer/util/useSchedule";
 import clsx from "clsx";
+import { useKeyboardShortcuts } from "@renderer/hooks";
 
 export default function DefaultLayout() {
   const [time, setTime] = useState(DateTime.now());
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Register keyboard shortcuts
+  useKeyboardShortcuts();
 
   useCronSchedule("* * * * * *", () => {
     setTime(DateTime.now());

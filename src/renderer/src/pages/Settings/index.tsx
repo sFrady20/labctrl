@@ -195,6 +195,49 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Keyboard Shortcuts */}
+      <div className="space-y-3">
+        <div className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+          Keyboard Shortcuts
+        </div>
+        <div className="bg-gray-900 rounded-lg overflow-hidden p-4">
+          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Toggle music mode</span>
+              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">Space</kbd>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Stop animation</span>
+              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">Esc</kbd>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Brightness up</span>
+              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">↑</kbd>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Brightness down</span>
+              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">↓</kbd>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Brightness preset</span>
+              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">1-9</kbd>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Lights off</span>
+              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">0</kbd>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Next song</span>
+              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">N</kbd>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Play/pause</span>
+              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">P</kbd>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* About */}
       <div className="space-y-3">
         <div className="text-sm font-semibold text-gray-400 uppercase tracking-wide">

@@ -3,7 +3,7 @@ import Color from "color";
 import { useState, useRef } from "react";
 import { useLighting, useMusicMode } from "@renderer/stores";
 import { CopyButton } from ".";
-import type { LightingTheme } from "@main/services/Lifx/types";
+import type { LightingTheme } from "@main/services/lifx/types";
 
 function SaveButton(props: { theme: LightingTheme; onSave: (theme: LightingTheme) => void }) {
   const { theme, onSave } = props;

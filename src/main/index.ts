@@ -1,8 +1,8 @@
 import { OpenExternalOptions, app, shell } from "electron";
 import Main, { type InferMainAPI } from "./main";
-import * as lifx from "./services/Lifx";
+import * as lifx from "./services/lifx";
 import * as ai from "./services/ai";
-import * as spotify from "./services/Spotify";
+import * as spotify from "./services/spotify";
 import * as scenes from "./services/scenes";
 
 // Register Spotify protocol handler
