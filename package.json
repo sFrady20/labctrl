@@ -20,6 +20,7 @@
     "clsx": "^2.1.1",
     "color": "^4.2.3",
     "cron-schedule": "^5.0.4",
+    "electron-store": "8",
     "electron-updater": "^6.3.9",
     "immer": "^10.1.1",
     "lifx-lan-client": "^2.1.0",

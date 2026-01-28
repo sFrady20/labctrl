@@ -1,4 +1,4 @@
-import { prompt } from "@main/services/ChatGPT";
+import { prompt } from "@main/services/ai";
 import { LightingTheme } from "../types";
 import coreContext from "../context-1.txt?raw";
 import roomContext from "../context-2.txt?raw";
@@ -17,7 +17,6 @@ export async function alterLightingTheme(
     );
 
     const response = await prompt({
-      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",

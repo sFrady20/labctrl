@@ -1,70 +1,34 @@
 import clsx from "clsx";
-import { create } from "zustand";
-import type { LightingTheme, Song } from "@main/services/Lifx/types";
-import { TimerBasedCronScheduler as scheduler } from "cron-schedule/schedulers/timer-based.js";
-import { parseCronExpression } from "cron-schedule";
-import { CopyButton, useLighting } from ".";
 import Color from "color";
+import { useState, useRef } from "react";
+import { useLighting, useMusicMode } from "@renderer/stores";
+import { CopyButton } from ".";
+import type { LightingTheme } from "@main/services/Lifx/types";
 
-type CronScheduleTimer = ReturnType<(typeof scheduler)["setInterval"]>;
+function SaveButton(props: { theme: LightingTheme; onSave: (theme: LightingTheme) => void }) {
+  const { theme, onSave } = props;
+  const [hasSaved, setSaved] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout>();
 
-const musicModeCron = parseCronExpression("*/15 * * * * *");
+  return (
+    <button
+      className="p-2 rounded-md hover:bg-gray-800"
+      onClick={(e) => {
+        e.stopPropagation();
+        onSave(theme);
+        setSaved(true);
+        clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => setSaved(false), 1000);
+      }}
+    >
+      <div
+        className={clsx(hasSaved ? "i-bx-check text-green" : "i-bx-save")}
+      />
+    </button>
+  );
+}
 
-export const useMusicMode = create<{
-  isBusy: boolean;
-  isActive: boolean;
-  interval?: CronScheduleTimer | undefined;
-  playing?: Song;
-  activate: (onSuccess: (theme: LightingTheme) => void) => void;
-  deactivate: () => void;
-}>((set, get) => ({
-  isBusy: false,
-  isActive: false,
-  interval: undefined,
-  playing: undefined,
-  activate: (onSuccess) => {
-    set({
-      isActive: true,
-      interval: scheduler.setInterval(musicModeCron, async () => {
-        if (get().isBusy) return;
-
-        try {
-          set({ isBusy: true });
-          const song = await window.main.invoke("getCurrentSpotifySong");
-
-          if (!song) throw new Error("No song playing");
-
-          set({ playing: song });
-
-          if (song.id === useLighting.getState().activeTheme?.spotifySongId)
-            throw new Error("Song theme already active");
-
-          const result = await window.main.invoke("songToLightingTheme", song);
-
-          if (result.status === "error")
-            throw new Error(`Theme creation error: ${result.message}`);
-
-          onSuccess(result.theme);
-        } catch (err: any) {
-          console.log(err.meessage);
-        } finally {
-          set({ isBusy: false });
-        }
-      }),
-    });
-  },
-  deactivate: () => {
-    const activeInterval = get().interval;
-    if (activeInterval) scheduler.clearTimeoutOrInterval(get().interval);
-    set({ isActive: false, isBusy: false, playing: undefined });
-  },
-}));
-
-import.meta.hot?.on("vite:beforeUpdate", () => {
-  useMusicMode.getState().deactivate();
-});
-
-export function MusicMode(props: {}) {
+export function MusicMode() {
   const lighting = useLighting();
   const musicMode = useMusicMode();
 
@@ -90,7 +54,7 @@ export function MusicMode(props: {}) {
           </div>
           {musicMode.playing ? (
             <div className="space-y-1">
-              <div className="font-semibold text-sm">{`${musicMode.playing.title}`}</div>
+              <div className="font-semibold text-sm">{musicMode.playing.title}</div>
               <div className="text-xs">{musicMode.playing.artist}</div>
             </div>
           ) : (
@@ -103,16 +67,16 @@ export function MusicMode(props: {}) {
             onClick={() => {
               window.main.invoke(
                 "toggleSongPlayingOnSpotify",
-                !musicMode.playing
+                !musicMode.playing?.isPlaying
               );
             }}
           >
-            <div className={musicMode.playing ? "i-bx-pause" : "i-bx-play"} />
+            <div className={musicMode.playing?.isPlaying ? "i-bx-pause" : "i-bx-play"} />
           </div>
           <div
             className="w-8 h-8 hover:bg-gray-800 rounded-md flex items-center justify-center cursor-pointer"
             onClick={() => {
-              window.main.invoke("toggleSongPlayingOnSpotify", true);
+              window.main.invoke("skipToNextSongOnSpotify");
             }}
           >
             <div className="i-bx-skip-next" />
@@ -130,7 +94,7 @@ export function MusicMode(props: {}) {
               ? undefined
               : musicMode.isActive
               ? musicMode.deactivate()
-              : musicMode.activate(lighting.activateTheme)
+              : musicMode.activate()
           }
         >
           <div
@@ -140,7 +104,7 @@ export function MusicMode(props: {}) {
                 ? "i-svg-spinners-3-dots-fade"
                 : musicMode.isActive
                 ? "i-bx-checkbox-checked"
-                : "i-bx-checkbox text-[24px",
+                : "i-bx-checkbox",
               {
                 "text-green-500": musicMode.isActive && !musicMode.isBusy,
               }
@@ -169,7 +133,18 @@ export function MusicMode(props: {}) {
                 />
               ))}
             </div>
-            <div className="flex-row space-x-2 hidden group-hover:flex">
+            <div className="flex-row space-x-1 flex">
+              {!lighting.themes.some((t) => t.id === lighting.activeTheme?.id) && (
+                <SaveButton
+                  theme={lighting.activeTheme}
+                  onSave={(theme) => {
+                    lighting.addTheme({
+                      ...theme,
+                      id: Math.random().toString(32).substring(7),
+                    });
+                  }}
+                />
+              )}
               <CopyButton theme={lighting.activeTheme} />
             </div>
           </div>

@@ -1,5 +1,5 @@
 import Vibrant from "node-vibrant";
-import { prompt } from "@main/services/ChatGPT";
+import { prompt } from "@main/services/ai";
 import coreContext from "../context-1.txt?raw";
 import roomContext from "../context-2.txt?raw";
 import formatContext from "../context-3.txt?raw";
@@ -20,7 +20,6 @@ export async function songToLightingTheme(song: Song) {
 
     console.log(`Prompting song to lighting theme for song "${song.title}"`);
     const response = await prompt({
-      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",

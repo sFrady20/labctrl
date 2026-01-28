@@ -1,66 +1,12 @@
 import clsx from "clsx";
 import Color from "color";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useAsync } from "react-async-hook";
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import debounce from "lodash/debounce";
 import type { LightingTheme } from "@main/services/Lifx/types";
-import { MusicMode, useMusicMode } from "./MusicMode";
+import { MusicMode } from "./MusicMode";
 import { useNavigate } from "react-router";
 import { ReactSortable } from "react-sortablejs";
-
-const debouncedSetLightingTheme = debounce(
-  (theme: LightingTheme, relativeBrightness?: number) => {
-    window.main.invoke("setLightingTheme", theme, {
-      relativeBrightness,
-    });
-  },
-  300,
-  { trailing: true }
-);
-
-type LightingStore = {
-  activeTheme?: LightingTheme;
-  activateTheme: (theme: LightingTheme) => void;
-  themes: LightingTheme[];
-  addTheme: (theme: LightingTheme) => void;
-  removeTheme: (name: string) => void;
-  setThemes: (theme: LightingTheme[]) => void;
-  relativeBrightness: number;
-  setRelativeBrightness: (number: number) => void;
-};
-
-export const useLighting = create(
-  persist<LightingStore>(
-    (set, get) =>
-      ({
-        activeTheme: undefined,
-        activateTheme: (theme) => {
-          window.main.invoke("setLightingTheme", theme, {
-            relativeBrightness: get().relativeBrightness,
-          });
-          set((x) => ({ ...x, activeTheme: theme }));
-        },
-        themes: [],
-        addTheme: (theme) =>
-          set((x) => ({ ...x, themes: [...x.themes, theme] })),
-        removeTheme: (id) =>
-          set((x) => ({ ...x, themes: x.themes.filter((x) => x.id !== id) })),
-        setThemes: (themes) => set((x) => ({ ...x, themes })),
-        relativeBrightness: 0.5,
-        setRelativeBrightness: (value) => {
-          set((x) => ({ ...x, relativeBrightness: value }));
-          const activeTheme = get().activeTheme;
-          if (!activeTheme) return;
-          debouncedSetLightingTheme(activeTheme, value);
-        },
-      } satisfies LightingStore),
-    {
-      name: "lighting-store",
-    }
-  )
-);
+import { useLighting, useMusicMode, useScenes } from "@renderer/stores";
 
 function PasteButton(props: { onPaste?: (theme: LightingTheme) => void }) {
   const { onPaste } = props;
@@ -72,14 +18,18 @@ function PasteButton(props: { onPaste?: (theme: LightingTheme) => void }) {
       className="b-none px-4 h-10 cursor-pointer bg-gray-900 hover:bg-gray-800 font-semibold flex items-center justify-center space-x-2"
       onClick={async (e) => {
         e.stopPropagation();
-        const theme = JSON.parse(
-          await navigator.clipboard.readText()
-        ) as LightingTheme;
-        theme.id = Math.random().toString(32).substring(7);
-        onPaste?.(theme);
-        setPasted(true);
-        clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(() => setPasted(false), 1000);
+        try {
+          const theme = JSON.parse(
+            await navigator.clipboard.readText()
+          ) as LightingTheme;
+          theme.id = Math.random().toString(32).substring(7);
+          onPaste?.(theme);
+          setPasted(true);
+          clearInterval(intervalRef.current);
+          intervalRef.current = setInterval(() => setPasted(false), 1000);
+        } catch (err) {
+          console.error("Failed to paste theme:", err);
+        }
       }}
     >
       <div
@@ -112,14 +62,73 @@ export function CopyButton(props: { theme: LightingTheme }) {
   );
 }
 
+function FavoriteButton(props: { isFavorite?: boolean; onToggle: () => void }) {
+  return (
+    <button
+      className="p-2 rounded-md hover:bg-gray-800"
+      onClick={(e) => {
+        e.stopPropagation();
+        props.onToggle();
+      }}
+    >
+      <div
+        className={clsx(
+          props.isFavorite ? "i-bx-bxs-star text-yellow-500" : "i-bx-star"
+        )}
+      />
+    </button>
+  );
+}
+
 export default function LightingPage() {
   const [topic, setTopic] = useState("");
 
   const lighting = useLighting();
   const musicMode = useMusicMode();
+  const scenes = useScenes();
   const navigate = useNavigate();
 
-  //activate theme on mount
+  // Load scenes on mount
+  useEffect(() => {
+    scenes.loadScenes();
+  }, []);
+
+  // Filtered themes based on search, category, and favorites
+  const filteredThemes = useMemo(() => {
+    let result = lighting.themes;
+
+    // Search filter
+    if (lighting.searchQuery) {
+      const query = lighting.searchQuery.toLowerCase();
+      result = result.filter(
+        (t) =>
+          t.name.toLowerCase().includes(query) ||
+          t.tags?.some((tag) => tag.toLowerCase().includes(query)) ||
+          t.category?.toLowerCase().includes(query)
+      );
+    }
+
+    // Category filter
+    if (lighting.selectedCategory) {
+      result = result.filter((t) => t.category === lighting.selectedCategory);
+    }
+
+    // Favorites filter
+    if (lighting.showFavoritesOnly) {
+      result = result.filter((t) => t.isFavorite);
+    }
+
+    return result;
+  }, [
+    lighting.themes,
+    lighting.searchQuery,
+    lighting.selectedCategory,
+    lighting.showFavoritesOnly,
+  ]);
+
+  const categories = lighting.getCategories();
+
+  // Activate theme on mount
   useEffect(() => {
     if (lighting.activeTheme) lighting.activateTheme(lighting.activeTheme);
   }, []);
@@ -127,7 +136,7 @@ export default function LightingPage() {
   const generate = useAsync(
     async (topic) => {
       const result = await window.main.invoke("textToLightingTheme", topic);
-      if (result.status === "success") lighting.addTheme(result.theme);
+      if (result.status === "success") lighting.addTheme(result.theme, "generated");
     },
     [topic],
     { executeOnMount: false, executeOnUpdate: false }
@@ -141,7 +150,7 @@ export default function LightingPage() {
         theme,
         topic
       );
-      if (result.status === "success") lighting.addTheme(result.theme);
+      if (result.status === "success") lighting.addTheme(result.theme, "generated");
     },
     [lighting.activeTheme, topic],
     { executeOnMount: false, executeOnUpdate: false }
@@ -166,7 +175,7 @@ export default function LightingPage() {
             </button>
           </div>
           <div className="flex flex-row b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
-            <PasteButton onPaste={lighting.addTheme} />
+            <PasteButton onPaste={(t) => lighting.addTheme(t, "imported")} />
           </div>
           <input
             type="range"
@@ -189,7 +198,7 @@ export default function LightingPage() {
           </div>
         </div>
 
-        <div className="flex flex-col b-1 b-gray-900 b-solid  rounded-lg overflow-hidden">
+        <div className="flex flex-col b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
           <textarea
             placeholder="Write in a topic to generate or an alteration to the current theme..."
             disabled={generate.loading || alter.loading}
@@ -230,56 +239,171 @@ export default function LightingPage() {
         </div>
 
         <MusicMode />
+
+        {/* Quick Scene Buttons */}
+        {scenes.scenes.length > 0 && (
+          <div className="flex flex-row flex-wrap gap-2">
+            {scenes.scenes.map((scene) => (
+              <button
+                key={scene.id}
+                className="flex items-center space-x-2 px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-lg text-sm font-medium"
+                onClick={() => scenes.activateScene(scene.id)}
+              >
+                <div className={scene.icon} />
+                <span>{scene.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Search and Filter Bar */}
+        <div className="flex flex-row space-x-2">
+          <div className="flex-1 flex flex-row items-center bg-gray-900 rounded-lg px-3 space-x-2">
+            <div className="i-bx-search text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search palettes..."
+              className="flex-1 h-10 bg-transparent b-none text-sm text-white placeholder:text-gray-500"
+              value={lighting.searchQuery}
+              onChange={(e) => lighting.setSearchQuery(e.target.value)}
+            />
+            {lighting.searchQuery && (
+              <button
+                className="p-1 hover:bg-gray-800 rounded"
+                onClick={() => lighting.setSearchQuery("")}
+              >
+                <div className="i-bx-x text-gray-500" />
+              </button>
+            )}
+          </div>
+          <button
+            className={clsx(
+              "px-3 h-10 rounded-lg flex items-center justify-center",
+              lighting.showFavoritesOnly
+                ? "bg-yellow-500/20 text-yellow-500"
+                : "bg-gray-900 hover:bg-gray-800"
+            )}
+            onClick={() =>
+              lighting.setShowFavoritesOnly(!lighting.showFavoritesOnly)
+            }
+          >
+            <div
+              className={clsx(
+                lighting.showFavoritesOnly ? "i-bx-bxs-star" : "i-bx-star"
+              )}
+            />
+          </button>
+        </div>
+
+        {/* Category Filter */}
+        {categories.length > 0 && (
+          <div className="flex flex-row flex-wrap gap-2">
+            <button
+              className={clsx(
+                "px-3 py-1 rounded-full text-xs font-medium",
+                lighting.selectedCategory === null
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-900 hover:bg-gray-800"
+              )}
+              onClick={() => lighting.setSelectedCategory(null)}
+            >
+              All ({lighting.themes.length})
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={clsx(
+                  "px-3 py-1 rounded-full text-xs font-medium",
+                  lighting.selectedCategory === category
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-900 hover:bg-gray-800"
+                )}
+                onClick={() => lighting.setSelectedCategory(category)}
+              >
+                {category} (
+                {lighting.themes.filter((t) => t.category === category).length})
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* Theme List */}
       <ReactSortable
         className="flex flex-col space-y-1 px-6 pb-4"
-        list={lighting.themes}
-        setList={lighting.setThemes}
+        list={filteredThemes}
+        setList={(newList) => {
+          // Only update if not filtered (to preserve order)
+          if (!lighting.searchQuery && !lighting.selectedCategory && !lighting.showFavoritesOnly) {
+            lighting.setThemes(newList);
+          }
+        }}
         animation={150}
+        disabled={!!lighting.searchQuery || !!lighting.selectedCategory || lighting.showFavoritesOnly}
       >
-        {lighting.themes.map((x, i) => (
+        {filteredThemes.map((theme) => (
           <div
-            key={i}
+            key={theme.id}
             className="flex justify-between items-center rounded-lg px-2 h-11 space-x-3 hover:bg-gray-900 cursor-pointer group"
             onClick={() => {
-              lighting.activateTheme(x);
-              musicMode.deactivate();
+              lighting.activateTheme(theme);
+              musicMode.deactivate(false);
             }}
           >
-            {lighting.activeTheme?.id === x.id && (
+            {lighting.activeTheme?.id === theme.id && (
               <div className="i-bx-bxs-check-circle text-green-500" />
             )}
-            <div className="text-sm font-medium flex-1">{x.name}</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate">{theme.name}</div>
+              {theme.category && (
+                <div className="text-xs text-gray-500">{theme.category}</div>
+              )}
+            </div>
             <div className="flex items-center space-x-1">
-              {x.instructions.map((x, i) => (
+              {theme.instructions.map((instr, j) => (
                 <div
-                  key={i}
+                  key={j}
                   className="rounded-full w-2 h-2"
                   style={{
                     backgroundColor: new Color(
-                      [x[1], x[2], x[3]].map(parseFloat),
+                      [instr[1], instr[2], instr[3]].map(parseFloat),
                       "hsv"
                     ).hex(),
                   }}
                 />
               ))}
             </div>
-            <div className="hidden group-hover:block ">
-              <CopyButton theme={x} />
+            <div className="hidden group-hover:flex items-center">
+              <FavoriteButton
+                isFavorite={theme.isFavorite}
+                onToggle={() => lighting.toggleFavorite(theme.id)}
+              />
+              <CopyButton theme={theme} />
               <button
                 className="p-2 rounded-md hover:bg-red-950"
                 onClick={(e) => {
                   e.stopPropagation();
-                  lighting.removeTheme(x.id);
+                  lighting.removeTheme(theme.id);
                 }}
               >
-                <div className="i-bx-trash text-red-500 " />
+                <div className="i-bx-trash text-red-500" />
               </button>
             </div>
           </div>
         ))}
       </ReactSortable>
+
+      {/* Empty state */}
+      {filteredThemes.length === 0 && (
+        <div className="flex-1 flex flex-col items-center justify-center text-gray-500 space-y-2 pb-20">
+          <div className="i-bx-palette text-4xl" />
+          <div className="text-sm">
+            {lighting.searchQuery || lighting.selectedCategory || lighting.showFavoritesOnly
+              ? "No palettes match your filters"
+              : "No palettes yet. Generate one above!"}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

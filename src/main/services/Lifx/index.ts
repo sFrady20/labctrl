@@ -60,3 +60,12 @@ export const setLightingTheme = async (
 export { textToLightingTheme } from "./textToLightingTheme";
 export { songToLightingTheme } from "./songToLightingTheme";
 export { alterLightingTheme } from "./alterLightingTheme";
+
+// Animation engine exports
+export {
+  startAnimation,
+  stopAnimation,
+  isAnimationRunning,
+  getCurrentAnimation,
+  setAnimationBrightness,
+} from "./animation-engine";
