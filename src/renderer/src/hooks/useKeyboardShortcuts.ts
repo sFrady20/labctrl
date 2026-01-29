@@ -7,11 +7,20 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      ) {
+      // Ignore if user is interacting with form elements or buttons
+      const target = e.target as HTMLElement;
+      const tagName = target.tagName.toLowerCase();
+      const isInteractiveElement =
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select" ||
+        tagName === "button" ||
+        target.isContentEditable ||
+        target.closest("button") !== null ||
+        target.closest("[role='button']") !== null ||
+        target.closest("a") !== null;
+
+      if (isInteractiveElement) {
         return;
       }
 

@@ -9,7 +9,7 @@ interface AISettingsSchema {
 const store = new Store<AISettingsSchema>({
   name: "ai-settings",
   defaults: {
-    activeModelId: "gpt-4o-mini",
+    activeModelId: "gpt-4.1-mini",
     customModels: [],
   },
 });

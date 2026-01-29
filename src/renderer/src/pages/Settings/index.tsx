@@ -124,17 +124,7 @@ export default function SettingsPage() {
                 )}
                 onClick={() => settings.setActiveModel(model.id)}
               >
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={clsx(
-                      "w-2 h-2 rounded-full",
-                      model.provider === "openai"
-                        ? "bg-green-500"
-                        : "bg-blue-500"
-                    )}
-                  />
-                  <span className="text-sm font-medium">{model.name}</span>
-                </div>
+                <span className="text-sm font-medium">{model.name}</span>
                 {settings.activeModelId === model.id && (
                   <div className="i-bx-check text-green-500" />
                 )}
@@ -143,15 +133,7 @@ export default function SettingsPage() {
           )}
         </div>
         <div className="text-xs text-gray-500">
-          <span className="inline-flex items-center space-x-1">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span>OpenAI</span>
-          </span>
-          <span className="mx-2">|</span>
-          <span className="inline-flex items-center space-x-1">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <span>OpenRouter</span>
-          </span>
+          All models via OpenRouter
         </div>
       </div>
 

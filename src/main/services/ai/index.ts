@@ -1,5 +1,5 @@
 import { is } from "@electron-toolkit/utils";
-import { OPEN_AI_API_KEY, OPENROUTER_API_KEY } from "@main/config";
+import { OPENROUTER_API_KEY } from "@main/config";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
@@ -9,15 +9,8 @@ import type { AIPromptRequest, AIModelConfig } from "./types";
 export * from "./types";
 export * from "./settings";
 
-const openaiClient = axios.create({
-  baseURL: "https://api.openai.com/v1",
-  headers: {
-    Authorization: `Bearer ${OPEN_AI_API_KEY}`,
-    "Content-Type": "application/json",
-  },
-});
-
-const openrouterClient = axios.create({
+// All models go through OpenRouter
+const client = axios.create({
   baseURL: "https://openrouter.ai/api/v1",
   headers: {
     Authorization: `Bearer ${OPENROUTER_API_KEY}`,
@@ -38,15 +31,8 @@ export async function prompt(request: AIPromptRequest): Promise<string> {
     temperature,
   };
 
-  let response: string;
-
-  if (activeModel.provider === "openrouter") {
-    const result = await openrouterClient.post("/chat/completions", payload);
-    response = result.data.choices[0].message.content;
-  } else {
-    const result = await openaiClient.post("/chat/completions", payload);
-    response = result.data.choices[0].message.content;
-  }
+  const result = await client.post("/chat/completions", payload);
+  const response = result.data.choices[0].message.content;
 
   // Log prompts for debugging
   if (is.dev) {
@@ -56,7 +42,6 @@ export async function prompt(request: AIPromptRequest): Promise<string> {
       `${JSON.stringify({
         timestamp: new Date().toISOString(),
         model: activeModel.id,
-        provider: activeModel.provider,
         prompt: request,
         response,
       })}\n`
@@ -76,15 +61,6 @@ export async function promptWithModel(
     temperature: request.temperature ?? modelConfig.temperature ?? 0.7,
   };
 
-  let response: string;
-
-  if (modelConfig.provider === "openrouter") {
-    const result = await openrouterClient.post("/chat/completions", payload);
-    response = result.data.choices[0].message.content;
-  } else {
-    const result = await openaiClient.post("/chat/completions", payload);
-    response = result.data.choices[0].message.content;
-  }
-
-  return response;
+  const result = await client.post("/chat/completions", payload);
+  return result.data.choices[0].message.content;
 }

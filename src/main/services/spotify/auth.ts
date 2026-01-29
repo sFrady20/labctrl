@@ -1,4 +1,4 @@
-import { BrowserWindow, app, protocol } from "electron";
+import { BrowserWindow, app } from "electron";
 import Store from "electron-store";
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from "@main/config";
 
@@ -84,7 +84,7 @@ async function exchangeCodeForTokens(code: string): Promise<void> {
       Authorization:
         "Basic " +
         Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString(
-          "base64"
+          "base64",
         ),
     },
     body: new URLSearchParams({
@@ -118,7 +118,7 @@ export async function refreshAccessToken(): Promise<string | null> {
         Authorization:
           "Basic " +
           Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString(
-            "base64"
+            "base64",
           ),
       },
       body: new URLSearchParams({

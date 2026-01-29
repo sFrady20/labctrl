@@ -42,6 +42,23 @@ export default class Main<API extends object> {
   }
 
   private async _setup() {
+    // Request single instance lock for deep link handling
+    const gotLock = app.requestSingleInstanceLock();
+
+    if (!gotLock) {
+      // Another instance is running, quit this one
+      app.quit();
+      return;
+    }
+
+    // When another instance tries to start, focus the existing window
+    app.on("second-instance", (_event, _commandLine, _workingDirectory) => {
+      if (this._window) {
+        if (this._window.isMinimized()) this._window.restore();
+        this._window.focus();
+      }
+    });
+
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
