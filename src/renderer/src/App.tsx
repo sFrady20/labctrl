@@ -1,26 +1,20 @@
-import { RouterProvider, createHashRouter, redirect } from "react-router-dom";
+import { RouterProvider, createHashRouter, Navigate } from "react-router-dom";
 import DefaultLayout from "./layouts/Default";
-import LightingPage from "./pages/Lighting";
+import DashboardPage from "./pages/Dashboard";
+import LightsPage from "./pages/Lights";
+import PalettesPage from "./pages/Palettes";
 import SettingsPage from "./pages/Settings";
-import TrainingPage from "./pages/Training";
-import { TasksPage } from "./pages/Tasks";
 
 const router = createHashRouter([
   {
     path: "/",
     Component: DefaultLayout,
     children: [
-      {
-        path: "/",
-        Component: () => {
-          redirect("/tasks");
-          return null;
-        },
-      },
-      { path: "/tasks", Component: TasksPage },
-      { path: "/lighting", Component: LightingPage },
-      { path: "/training", Component: TrainingPage },
-      { path: "/settings", Component: SettingsPage },
+      { index: true, element: <Navigate to="/dashboard" replace /> },
+      { path: "dashboard", Component: DashboardPage },
+      { path: "lights", Component: LightsPage },
+      { path: "palettes", Component: PalettesPage },
+      { path: "settings", Component: SettingsPage },
     ],
   },
 ]);

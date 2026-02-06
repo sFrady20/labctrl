@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import debounce from "lodash/debounce";
-import type { LightingTheme, ThemeSource, AnimatedPalette } from "@main/services/lifx/types";
+import type {
+  LightingTheme,
+  ThemeSource,
+  AnimatedPalette,
+} from "@main/services/lifx/types";
 
 const debouncedSetLightingTheme = debounce(
   (theme: LightingTheme, relativeBrightness?: number) => {
@@ -10,7 +14,7 @@ const debouncedSetLightingTheme = debounce(
     });
   },
   300,
-  { trailing: true }
+  { trailing: true },
 );
 
 type LightingStore = {
@@ -68,7 +72,11 @@ export const useLighting = create(
         // Check if this is an animated palette
         if ("type" in theme && (theme as AnimatedPalette).type === "animated") {
           const animated = theme as AnimatedPalette;
-          window.main.invoke("startAnimation", animated, get().relativeBrightness);
+          window.main.invoke(
+            "startAnimation",
+            animated,
+            get().relativeBrightness,
+          );
           set((state) => ({
             ...state,
             activeTheme: theme,
@@ -139,7 +147,7 @@ export const useLighting = create(
         set((state) => ({
           ...state,
           themes: state.themes.map((t) =>
-            t.id === id ? { ...t, ...updates } : t
+            t.id === id ? { ...t, ...updates } : t,
           ),
         })),
       removeTheme: (id) =>
@@ -152,14 +160,14 @@ export const useLighting = create(
         set((state) => ({
           ...state,
           themes: state.themes.map((t) =>
-            t.id === id ? { ...t, isFavorite: !t.isFavorite } : t
+            t.id === id ? { ...t, isFavorite: !t.isFavorite } : t,
           ),
         })),
       setCategory: (id, category) =>
         set((state) => ({
           ...state,
           themes: state.themes.map((t) =>
-            t.id === id ? { ...t, category } : t
+            t.id === id ? { ...t, category } : t,
           ),
         })),
 
@@ -199,12 +207,13 @@ export const useLighting = create(
     {
       name: "lighting-store",
       version: 2,
-      partialize: (state) => ({
-        // Persist themes, active theme, brightness, but not filters
-        themes: state.themes,
-        activeTheme: state.activeTheme,
-        relativeBrightness: state.relativeBrightness,
-      }),
-    }
-  )
+      partialize: (state) =>
+        ({
+          // Persist themes, active theme, brightness, but not filters
+          themes: state.themes,
+          activeTheme: state.activeTheme,
+          relativeBrightness: state.relativeBrightness,
+        }) as unknown as LightingStore,
+    },
+  ),
 );

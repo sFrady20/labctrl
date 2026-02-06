@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { useSettings } from "@renderer/stores";
+import { useSettings, useClaude } from "@renderer/stores";
 import clsx from "clsx";
 
 export default function SettingsPage() {
-  const navigate = useNavigate();
   const settings = useSettings();
+  const claude = useClaude();
   const [spotifyStatus, setSpotifyStatus] = useState<{
     connected: boolean;
     expiresAt: number | null;
   }>({ connected: false, expiresAt: null });
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isConnectingClaude, setIsConnectingClaude] = useState(false);
 
   useEffect(() => {
     settings.loadSettings();
     loadSpotifyStatus();
+    claude.checkConnection();
   }, []);
 
   const loadSpotifyStatus = async () => {
@@ -26,9 +27,7 @@ export default function SettingsPage() {
     setIsConnecting(true);
     try {
       const success = await window.main.invoke("initiateSpotifyAuth");
-      if (success) {
-        await loadSpotifyStatus();
-      }
+      if (success) await loadSpotifyStatus();
     } finally {
       setIsConnecting(false);
     }
@@ -39,21 +38,80 @@ export default function SettingsPage() {
     await loadSpotifyStatus();
   };
 
+  const handleConnectClaude = async () => {
+    setIsConnectingClaude(true);
+    try {
+      await claude.connect();
+    } finally {
+      setIsConnectingClaude(false);
+    }
+  };
+
   return (
-    <div className="flex-1 flex flex-col space-y-4 w-full p-4">
-      <div
-        className="w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer hover:bg-gray-900"
-        onClick={() => navigate(-1)}
-      >
-        <div className="i-bx-arrow-back" />
+    <div className="flex-1 flex flex-col space-y-6 w-full p-4">
+      {/* Claude.ai Connection */}
+      <div className="space-y-2">
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+          Claude.ai
+        </div>
+        <div className="bg-[#0a0a0a] rounded-xl overflow-hidden">
+          {claude.isConnected ? (
+            <div className="p-4 space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-full bg-[#d4a574] flex items-center justify-center">
+                  <span className="text-sm font-bold text-black">C</span>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-green-500">
+                    Connected
+                  </div>
+                  <div className="text-xs text-neutral-600">
+                    Pro plan usage tracking active
+                  </div>
+                </div>
+              </div>
+              <button
+                className="w-full h-10 bg-red-500/10 text-red-500 rounded-lg font-medium hover:bg-red-500/20 transition-colors"
+                onClick={() => claude.disconnect()}
+              >
+                Disconnect
+              </button>
+            </div>
+          ) : (
+            <div className="p-4 space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-full bg-[#222] flex items-center justify-center">
+                  <span className="text-sm font-bold text-neutral-500">C</span>
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Not connected</div>
+                  <div className="text-xs text-neutral-600">
+                    Connect to track Claude Pro usage
+                  </div>
+                </div>
+              </div>
+              <button
+                className="w-full h-10 bg-[#d4a574] text-black rounded-lg font-medium hover:bg-[#c49564] disabled:opacity-60 flex items-center justify-center transition-colors"
+                onClick={handleConnectClaude}
+                disabled={isConnectingClaude}
+              >
+                {isConnectingClaude ? (
+                  <div className="i-svg-spinners-3-dots-fade" />
+                ) : (
+                  "Connect Claude"
+                )}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Spotify Connection */}
-      <div className="space-y-3">
-        <div className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+      <div className="space-y-2">
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
           Spotify
         </div>
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="bg-[#0a0a0a] rounded-xl overflow-hidden">
           {spotifyStatus.connected ? (
             <div className="p-4 space-y-3">
               <div className="flex items-center space-x-3">
@@ -62,7 +120,7 @@ export default function SettingsPage() {
                   <div className="text-sm font-medium text-green-500">
                     Connected
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-neutral-600">
                     Token expires{" "}
                     {spotifyStatus.expiresAt
                       ? new Date(spotifyStatus.expiresAt).toLocaleTimeString()
@@ -71,7 +129,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <button
-                className="w-full h-10 bg-red-500/20 text-red-500 rounded-lg font-medium hover:bg-red-500/30"
+                className="w-full h-10 bg-red-500/10 text-red-500 rounded-lg font-medium hover:bg-red-500/20 transition-colors"
                 onClick={handleDisconnectSpotify}
               >
                 Disconnect
@@ -80,16 +138,16 @@ export default function SettingsPage() {
           ) : (
             <div className="p-4 space-y-3">
               <div className="flex items-center space-x-3">
-                <div className="i-bx-bxl-spotify text-gray-500 text-2xl" />
+                <div className="i-bx-bxl-spotify text-neutral-600 text-2xl" />
                 <div>
                   <div className="text-sm font-medium">Not connected</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-neutral-600">
                     Connect to enable music mode
                   </div>
                 </div>
               </div>
               <button
-                className="w-full h-10 bg-[#1db954] text-white rounded-lg font-medium hover:bg-[#1ed760] disabled:opacity-60 flex items-center justify-center"
+                className="w-full h-10 bg-[#1db954] text-white rounded-lg font-medium hover:bg-[#1ed760] disabled:opacity-60 flex items-center justify-center transition-colors"
                 onClick={handleConnectSpotify}
                 disabled={isConnecting}
               >
@@ -105,22 +163,25 @@ export default function SettingsPage() {
       </div>
 
       {/* AI Model Selection */}
-      <div className="space-y-3">
-        <div className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+      <div className="space-y-2">
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
           AI Model
         </div>
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="bg-[#0a0a0a] rounded-xl overflow-hidden">
           {settings.isLoading ? (
             <div className="h-11 flex items-center justify-center">
-              <div className="i-svg-spinners-3-dots-fade" />
+              <div className="i-svg-spinners-3-dots-fade text-neutral-500" />
             </div>
           ) : (
-            settings.availableModels.map((model) => (
+            settings.availableModels.map((model, i) => (
               <div
                 key={model.id}
                 className={clsx(
-                  "h-11 flex items-center justify-between px-4 cursor-pointer hover:bg-gray-800",
-                  settings.activeModelId === model.id && "bg-gray-800"
+                  "h-11 flex items-center justify-between px-4 cursor-pointer transition-colors",
+                  settings.activeModelId === model.id
+                    ? "bg-[#111]"
+                    : "hover:bg-[#111]",
+                  i > 0 && "border-t border-[#1a1a1a]",
                 )}
                 onClick={() => settings.setActiveModel(model.id)}
               >
@@ -132,110 +193,73 @@ export default function SettingsPage() {
             ))
           )}
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-neutral-600 px-1">
           All models via OpenRouter
         </div>
       </div>
 
-      {/* Device Control (Coming Soon) */}
-      <div className="space-y-3">
-        <div className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-          Device Control
+      {/* Keyboard Shortcuts */}
+      <div className="space-y-2">
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+          Keyboard Shortcuts
         </div>
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
-          <div className="p-4 space-y-2">
-            <div className="flex items-center space-x-3">
-              <div className="i-bx-devices text-gray-500 text-xl" />
-              <div>
-                <div className="text-sm font-medium text-gray-400">
-                  Coming Soon
-                </div>
-                <div className="text-xs text-gray-500">
-                  Broadlink IR/RF device control
-                </div>
+        <div className="bg-[#0a0a0a] rounded-xl overflow-hidden p-4">
+          <div className="grid grid-cols-1 gap-y-2 text-sm">
+            {[
+              ["Toggle music mode", "Space"],
+              ["Stop animation", "Esc"],
+              ["Brightness up", "\u2191"],
+              ["Brightness down", "\u2193"],
+              ["Brightness preset", "1-9"],
+              ["Lights off", "0"],
+              ["Next song", "N"],
+              ["Play/pause", "P"],
+            ].map(([label, key]) => (
+              <div key={label} className="flex items-center justify-between">
+                <span className="text-neutral-500">{label}</span>
+                <kbd className="px-2 py-0.5 bg-[#111] rounded text-xs text-neutral-400 border border-[#1a1a1a]">
+                  {key}
+                </kbd>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Diagnostics */}
-      <div className="space-y-3">
-        <div className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+      <div className="space-y-2">
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
           Diagnostics
         </div>
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="bg-[#0a0a0a] rounded-xl overflow-hidden">
           <div
-            className="h-11 flex items-center space-x-3 hover:bg-gray-800 px-4 cursor-pointer"
+            className="h-11 flex items-center space-x-3 hover:bg-[#111] px-4 cursor-pointer transition-colors"
             onClick={async () =>
               console.log(await window.main.invoke("getAllLights"))
             }
           >
-            <div className="i-bx-bulb text-gray-400" />
+            <div className="i-bx-bulb text-neutral-500" />
             <div className="text-sm font-medium">Output light details</div>
           </div>
         </div>
       </div>
 
-      {/* Keyboard Shortcuts */}
-      <div className="space-y-3">
-        <div className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-          Keyboard Shortcuts
-        </div>
-        <div className="bg-gray-900 rounded-lg overflow-hidden p-4">
-          <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400">Toggle music mode</span>
-              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">Space</kbd>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400">Stop animation</span>
-              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">Esc</kbd>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400">Brightness up</span>
-              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">↑</kbd>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400">Brightness down</span>
-              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">↓</kbd>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400">Brightness preset</span>
-              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">1-9</kbd>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400">Lights off</span>
-              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">0</kbd>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400">Next song</span>
-              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">N</kbd>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-400">Play/pause</span>
-              <kbd className="px-2 py-0.5 bg-gray-800 rounded text-xs">P</kbd>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* About */}
-      <div className="space-y-3">
-        <div className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+      <div className="space-y-2 pb-4">
+        <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
           About
         </div>
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
+        <div className="bg-[#0a0a0a] rounded-xl overflow-hidden">
           <div
-            className="h-11 flex items-center space-x-3 hover:bg-gray-800 px-4 cursor-pointer"
+            className="h-11 flex items-center space-x-3 hover:bg-[#111] px-4 cursor-pointer transition-colors"
             onClick={() =>
               window.main.invoke(
                 "openExternal",
-                "https://github.com/fradiation/labctrl"
+                "https://github.com/fradiation/labctrl",
               )
             }
           >
-            <div className="i-bx-bxl-github text-gray-400" />
+            <div className="i-bx-bxl-github text-neutral-500" />
             <div className="text-sm font-medium">View on GitHub</div>
           </div>
         </div>

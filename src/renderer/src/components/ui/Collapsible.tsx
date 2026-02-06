@@ -19,24 +19,24 @@ export function Collapsible({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="flex flex-col b-1 b-gray-900 b-solid rounded-lg overflow-hidden">
+    <div className="flex flex-col rounded-xl overflow-hidden border border-[#1a1a1a]">
       <button
-        className="flex items-center justify-between px-4 h-10 bg-gray-900 hover:bg-gray-800 cursor-pointer"
+        className="flex items-center justify-between px-4 h-10 bg-[#0a0a0a] hover:bg-[#111] cursor-pointer transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center space-x-2">
-          {icon && <div className={icon} />}
+          {icon && <div className={clsx(icon, "text-neutral-400")} />}
           <span className="font-medium text-sm">{title}</span>
           {badge}
         </div>
         <div
           className={clsx(
-            "i-bx-chevron-down transition-transform",
-            isOpen && "rotate-180"
+            "i-bx-chevron-down transition-transform text-neutral-500",
+            isOpen && "rotate-180",
           )}
         />
       </button>
-      {isOpen && <div className="bg-gray-950">{children}</div>}
+      {isOpen && <div className="bg-black">{children}</div>}
     </div>
   );
 }

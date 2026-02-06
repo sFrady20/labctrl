@@ -7,7 +7,7 @@ export function useKeyboardShortcuts() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is interacting with form elements or buttons
+      // Ignore if user is interacting with form elements
       const target = e.target as HTMLElement;
       const tagName = target.tagName.toLowerCase();
       const isInteractiveElement =
@@ -20,11 +20,8 @@ export function useKeyboardShortcuts() {
         target.closest("[role='button']") !== null ||
         target.closest("a") !== null;
 
-      if (isInteractiveElement) {
-        return;
-      }
+      if (isInteractiveElement) return;
 
-      // Check for modifier keys
       const isMod = e.ctrlKey || e.metaKey;
 
       switch (e.key.toLowerCase()) {
@@ -44,8 +41,8 @@ export function useKeyboardShortcuts() {
         case "arrowup":
           if (!isMod) {
             e.preventDefault();
-            const newBrightness = Math.min(1, lighting.relativeBrightness + 0.1);
-            lighting.setRelativeBrightness(newBrightness);
+            const up = Math.min(1, lighting.relativeBrightness + 0.1);
+            lighting.setRelativeBrightness(up);
           }
           break;
 
@@ -53,8 +50,8 @@ export function useKeyboardShortcuts() {
         case "arrowdown":
           if (!isMod) {
             e.preventDefault();
-            const newBrightness = Math.max(0, lighting.relativeBrightness - 0.1);
-            lighting.setRelativeBrightness(newBrightness);
+            const down = Math.max(0, lighting.relativeBrightness - 0.1);
+            lighting.setRelativeBrightness(down);
           }
           break;
 
@@ -100,7 +97,7 @@ export function useKeyboardShortcuts() {
           if (!isMod && musicMode.isActive) {
             window.main.invoke(
               "toggleSongPlayingOnSpotify",
-              !musicMode.playing?.isPlaying
+              !musicMode.playing?.isPlaying,
             );
           }
           break;

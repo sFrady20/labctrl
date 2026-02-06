@@ -6,7 +6,7 @@ export type LightInstruction = [
   saturation: string,
   brightness: string,
   kelvin: string,
-  duration: string
+  duration: string,
 ];
 
 export type LightingTheme = {
@@ -48,4 +48,30 @@ export type Song = {
   artist: string;
   images: string[];
   isPlaying: boolean;
+};
+
+export type LightDefinition = {
+  id: string;
+  lifxId: string;
+  label: string;
+  description: string;
+};
+
+export type LightState = {
+  id: string;
+  lifxId: string;
+  label: string;
+  online: boolean;
+  power: boolean;
+  hue: number;
+  saturation: number;
+  brightness: number;
+  kelvin: number;
+};
+
+export type LightGroup = {
+  id: string;
+  name: string;
+  lightIds: string[];
+  brightness: number; // 0-1, group-level dimmer (1 = full, 0 = off)
 };

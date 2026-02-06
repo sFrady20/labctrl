@@ -1,8 +1,10 @@
 body {
-  @apply bg-gray-950 text-gray-300 overflow-y-scroll;
+  @apply bg-black text-white overflow-y-scroll;
 }
 
-textarea:focus {
+textarea:focus,
+input:focus,
+select:focus {
   outline: none;
 }
 
@@ -10,22 +12,54 @@ textarea:focus {
   @apply flex flex-col items-center justify-center min-h-[100svh];
 }
 
-/* width */
+/* Custom range slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 24px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: #2a2a2a;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: white;
+  border: none;
+  margin-top: -5px;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: #e5e5e5;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
-  @apply w-2;
+  @apply w-1.5;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-  @apply bg-gray-950;
+  @apply bg-black;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-900 rounded-sm;
+  @apply bg-[#222] rounded-full;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-600;
+  @apply bg-[#444];
+}
+
+/* Select styling */
+select {
+  @apply appearance-none bg-[#111] text-white rounded-lg;
 }
