@@ -10,5 +10,12 @@ declare global {
         ...params: Parameters<MainAPI[P]>
       ) => Promise<ReturnType<MainAPI[P]>>;
     };
+    windowControls: {
+      minimize: () => Promise<void>;
+      maximize: () => Promise<void>;
+      close: () => Promise<void>;
+      isMaximized: () => Promise<boolean>;
+      onMaximizedChange: (callback: (maximized: boolean) => void) => () => void;
+    };
   }
 }

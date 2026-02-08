@@ -73,6 +73,9 @@ export default class Main<API extends object> {
         optimizer.watchWindowShortcuts(window);
       });
 
+      // Register window control IPC handlers once
+      this._registerWindowControls();
+
       this._window = this._createWindow(this._options?.browser);
 
       app.on("activate", () => {
@@ -96,8 +99,30 @@ export default class Main<API extends object> {
     });
   }
 
+  private _registerWindowControls() {
+    ipcMain.handle("window:minimize", () => {
+      this._window?.minimize();
+    });
+
+    ipcMain.handle("window:maximize", () => {
+      if (this._window?.isMaximized()) {
+        this._window.unmaximize();
+      } else {
+        this._window?.maximize();
+      }
+    });
+
+    ipcMain.handle("window:close", () => {
+      this._window?.close();
+    });
+
+    ipcMain.handle("window:isMaximized", () => {
+      return this._window?.isMaximized() ?? false;
+    });
+  }
+
   private _createWindow(
-    options?: BrowserWindowConstructorOptions
+    options?: BrowserWindowConstructorOptions,
   ): BrowserWindow {
     // Create the browser window.
     const window = new BrowserWindow({
@@ -105,6 +130,7 @@ export default class Main<API extends object> {
       height: 670,
       show: false,
       autoHideMenuBar: true,
+      frame: false,
       ...(process.platform === "linux" ? { icon } : {}),
       ...options,
       webPreferences: {
@@ -112,6 +138,15 @@ export default class Main<API extends object> {
         sandbox: false,
         ...options?.webPreferences,
       },
+    });
+
+    // Notify the renderer when maximize state changes
+    window.on("maximize", () => {
+      window.webContents.send("window:maximized-changed", true);
+    });
+
+    window.on("unmaximize", () => {
+      window.webContents.send("window:maximized-changed", false);
     });
 
     window.on("ready-to-show", () => {
@@ -137,8 +172,8 @@ export default class Main<API extends object> {
   private _provide(api?: API) {
     Object.entries(api || {}).forEach(([key, value]) =>
       typeof value === "function"
-        ? ipcMain.handle(`remote__${key}`, (e, ...args) => value(...args))
-        : null
+        ? ipcMain.handle(`remote__${key}`, (_event, ...args) => value(...args))
+        : null,
     );
   }
 }

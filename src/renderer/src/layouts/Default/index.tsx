@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { useKeyboardShortcuts } from "@renderer/hooks";
 import { useLighting, useLights, useClaude } from "@renderer/stores";
+import TitleBar from "@renderer/components/TitleBar";
 
 const tabs = [
   { icon: "i-bx-grid-alt", label: "Home", path: "/dashboard" },
@@ -53,10 +54,12 @@ export default function DefaultLayout() {
 
   return (
     <div className="flex-1 flex flex-col w-full h-[100svh]">
+      <TitleBar />
+
       {/* Content area */}
       <div
         className={clsx(
-          "flex-1 overflow-y-auto",
+          "flex-1 overflow-y-auto pt-8",
           hasInfoRow ? "pb-[104px]" : "pb-[82px]",
         )}
       >

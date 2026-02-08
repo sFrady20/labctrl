@@ -63,3 +63,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
 select {
   @apply appearance-none bg-[#111] text-white rounded-lg;
 }
+
+/* Titlebar drag regions */
+.titlebar-drag {
+  -webkit-app-region: drag;
+}
+
+.titlebar-nodrag {
+  -webkit-app-region: no-drag;
+}
